@@ -14,12 +14,41 @@
 
       body {
         display: flex;
+        flex-direction:column;
         justify-content: center;
         align-items: center;
         height: 100vh;
         margin: auto;
+        position: relative;
       }
-      div {
+#one{
+  position: absolute;
+  top: 0;
+  display: flex;
+  gap: 20px;
+  top: 5px;
+  width: 100vw;
+  margin: 10px;
+  height: 50px;
+}
+#one p{
+  margin: auto;
+  font-size: 18px;
+  color: #333;
+}
+#one p a{
+  color: #333;
+  text-decoration: none;
+  padding:10px 20px;
+  border-radius: 10px;
+  background-color: skyblue;
+  color: #fff;
+  margin-left: 20px;
+  font-size: 18px;
+  
+}
+
+      #two {
         display: flex;
         flex-direction: column;
         gap: 20px;
@@ -46,7 +75,7 @@
         font-size: 20px;
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       }
-      p {
+      #two p {
         width: 100%;
         margin: 20px auto;
         position: absolute;
@@ -54,14 +83,19 @@
         font-size: 20px;
 
       }
-      a {
+      #two a {
         text-decoration: none;
         color: #000;
       }
+
     </style>
   </head>
   <body>
-    <div>
+    <div id="one">
+      <p>Already you have a account only sign in and use it.<a href="/HTML/login.HTML">Sign in</a></p>
+      
+    </div>
+    <div id="two">
       <p>Select your Catagory</p>
       <a href="/HTML/login.HTML"><button>Student</button></a>
       <a href="/HTML/login.HTML"><button>Staff</button></a>
