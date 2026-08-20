@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="/frontend/css/utilities.css">
+    <style>
+        #submit{
+            margin-top: 20px;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <form action="" class="registration">
+        <p>Student Profile</p>
+        <div class="line"></div>
+        <br />
+        <label for="User_Id">User Id:</label>
+        <input type="text" placeholder="Auto-generate" disabled="disabled" />
+        <br />
+        <label for="PRN">PRN:</label>
+        <input type="number" />
+        <br />
+        <label for="Course">Course:</label>
+        <select class="one">
+          <option value="Department">Computer Science and Engineering</option>
+          <option value="Department">Mechanical Engineering</option>
+          <option value="Department">Computer Science and Engineering(AI & ML)</option>
+        </select>
+        <br>
+        <label for="Year">Year:</label>
+        <select class="one">
+          <option value="Year">1st</option>
+          <option value="Year">2nd</option>
+          <option value="Year">3rd</option>
+          <option value="Year">4th</option>
+        </select>
+        <br />
+        
+        <label for="Division">Division:</label>
+         <select class="one">
+          <option value="Division">A</option>
+          <option value="Division">B</option>
+          <option value="Division">C</option>
+          <option value="Division">D</option>
+        </select>
+        <br />
+        <button type="submit" id="submit">Save</button>
+      </form>
+    </div>
+  </body>
+</html>
