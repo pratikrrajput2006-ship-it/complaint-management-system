@@ -939,27 +939,82 @@ The following decisions are considered final for the current project scope:
 
 ## 27. Current Project Status
 
-**Completed design work:**
+### Completed
 
-- Requirement analysis
-- User-role definition
-- Workflow definition
-- Entity identification
-- Attribute definition
-- PK/FK planning
-- Relationship/cardinality planning
-- ER design
-- Schema design
-- Account creation model
-- Department/category routing logic
-- Security planning
-- Frontend folder planning
-- Initial Registration UI
-- Student Profile UI
-- Staff Profile UI
+- Requirement analysis completed
+- User roles and permissions defined
+- Complaint workflow designed
+- ER diagram and schema design finalized
+- Database `complaint_management_system` created
+- `USER` table created and finalized
+- `ADMIN` table created and finalized
+- Primary Key and Foreign Key relationships implemented
+- `NOT NULL`, `UNIQUE`, and `DEFAULT` constraints implemented
+- Node.js backend initialized
+- Express server created and tested on port `3000`
+- Admin router and controller structure created
+- `POST /api/admin/create` route created
+- Request body handling implemented
+- Admin input validation implemented
+- Email format validation implemented
+- Password length validation implemented
+- bcrypt password hashing implemented
+- `mysql2` installed and configured
+- `.env` and `dotenv` configuration implemented
+- MySQL connection pool implemented
+- Node.js successfully connected to MySQL
+- Backend successfully connected to the database
+- First `ADM001` record created in `USER`
+- Git and GitHub repository configured
+- `.gitignore` configured to exclude `.env` and `node_modules`
 
-**Current development stage:**
+### Currently in Progress
 
+- Complete `ADM001` profile in the `ADMIN` table
+- Connect the Admin creation API to both `USER` and `ADMIN` tables
+- Implement Admin login
+- Implement authentication
+- Implement role-based authorization
+- Build Admin dashboard
+
+### Not Started Yet
+
+- Student registration/backend
+- Staff registration/backend
+- Higher Authority account workflow
+- Department management
+- Category management
+- Complaint submission and management
+- Staff assignment workflow
+- Complaint tracking/history
+- Escalation workflow
+- Notifications
+- Feedback
+- Complete frontend-backend integration
+- Final testing and deployment
+
+### Current Development Flow
+
+```text
+Database Foundation             ✅
+        ↓
+Admin Backend Foundation        ✅
+        ↓
+Admin Account Completion        🔄
+        ↓
+Admin Authentication            ⏳
+        ↓
+Admin Authorization             ⏳
+        ↓
+Admin Dashboard                 ⏳
+        ↓
+Student / Staff                 ⏳
+        ↓
+Complaint Workflow              ⏳
+        ↓
+Higher Authority                ⏳
+        ↓
+Testing                         ⏳
 > Frontend UI development with HTML and CSS.
 
 ---
