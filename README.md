@@ -941,7 +941,7 @@ The following decisions are considered final for the current project scope:
 
 ### Completed
 
-- Requirement analysis completed
+- Requirement analysi completed
 - User roles and permissions defined
 - Complaint workflow designed
 - ER diagram and schema design finalized
@@ -982,7 +982,7 @@ The following decisions are considered final for the current project scope:
 - Student registration/backend
 - Staff registration/backend
 - Higher Authority account workflow
-- Department management
+- Department managemen
 - Category management
 - Complaint submission and management
 - Staff assignment workflow
