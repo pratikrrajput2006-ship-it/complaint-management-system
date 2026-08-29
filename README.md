@@ -937,87 +937,102 @@ The following decisions are considered final for the current project scope:
 
 ---
 
-## 27. Current Project Status
+## 27.## Current Project Status
 
-### Completed
+### ✅ Completed
 
-- Requirement analysi completed
-- User roles and permissions defined
-- Complaint workflow designed
-- ER diagram and schema design finalized
-- Database `complaint_management_system` created
+- Project requirements and overall complaint workflow planned
+- ER diagram designed and reviewed
+- MySQL database `complaint_management_system` created
 - `USER` table created and finalized
 - `ADMIN` table created and finalized
 - Primary Key and Foreign Key relationships implemented
 - `NOT NULL`, `UNIQUE`, and `DEFAULT` constraints implemented
+- `ID_SEQUENCE` table designed for role-based ID generation
 - Node.js backend initialized
 - Express server created and tested on port `3000`
 - Admin router and controller structure created
-- `POST /api/admin/create` route created
+- `POST /api/admin/create` API created
 - Request body handling implemented
 - Admin input validation implemented
 - Email format validation implemented
-- Password length validation implemented
+- Password validation implemented
 - bcrypt password hashing implemented
-- `mysql2` installed and configured
+- MySQL2 configured
 - `.env` and `dotenv` configuration implemented
 - MySQL connection pool implemented
 - Node.js successfully connected to MySQL
-- Backend successfully connected to the database
-- First `ADM001` record created in `USER`
-- Git and GitHub repository configured
-- `.gitignore` configured to exclude `.env` and `node_modules`
+- Parameterized SQL queries implemented
+- Database transaction implemented
+  - `beginTransaction()`
+  - `commit()`
+  - `rollback()`
+  - `release()`
+- USER + ADMIN account creation tested successfully
+- `ID_SEQUENCE` and `FOR UPDATE` concepts studied
+- Automatic Admin ID generation design finalized
+- `Schema.sql` updated with the current database structure
+- Git repository and `.gitignore` configured
 
-### Currently in Progress
+### 🔄 Currently In Progress
 
-- Complete `ADM001` profile in the `ADMIN` table
-- Connect the Admin creation API to both `USER` and `ADMIN` tables
-- Implement Admin login
-- Implement authentication
-- Implement role-based authorization
-- Build Admin dashboard
+- Move Admin ID generation fully inside `createAdmin()`
+- Remove `user_id` from the Admin creation request
+- Generate IDs automatically:
+  - `ADM001`
+  - `ADM002`
+  - `ADM003`
+  - ...
+- Verify sequence handling after account deletion
+- Finalize Admin account creation workflow
 
-### Not Started Yet
+### ⏳ Next
 
-- Student registration/backend
-- Staff registration/backend
+- Admin login API
+- bcrypt password verification with `bcrypt.compare()`
+- Authentication
+- Authorization / role-based access control
+- Admin dashboard
 - Higher Authority account workflow
-- Department managemen
-- Category management
-- Complaint submission and management
-- Staff assignment workflow
-- Complaint tracking/history
-- Escalation workflow
-- Notifications
-- Feedback
-- Complete frontend-backend integration
-- Final testing and deployment
+- Student and Staff account workflows
+- Complaint management workflow
+- Complaint assignment and escalation
+- Notifications and feedback
+- Frontend-backend integration
+- Testing and deployment
 
 ### Current Development Flow
 
 ```text
-Database Foundation             ✅
+Database Foundation              ✅
         ↓
-Admin Backend Foundation        ✅
+Express Backend                 ✅
         ↓
-Admin Account Completion        🔄
+Admin API                       ✅
         ↓
-Admin Authentication            ⏳
+MySQL Integration               ✅
         ↓
-Admin Authorization             ⏳
+Transaction Handling             ✅
         ↓
-Admin Dashboard                 ⏳
+ID Sequence Design               ✅
         ↓
-Student / Staff                 ⏳
+Automatic Admin ID               🔄
         ↓
-Complaint Workflow              ⏳
+Admin Login                      ⏳
         ↓
-Higher Authority                ⏳
+Authentication                   ⏳
         ↓
-Testing                         ⏳
-> Frontend UI development with HTML and CSS.
-
----
+Authorization                    ⏳
+        ↓
+Admin Dashboard                  ⏳
+        ↓
+Student / Staff                  ⏳
+        ↓
+Complaint Workflow               ⏳
+        ↓
+Higher Authority                 ⏳
+        ↓
+Testing & Deployment             ⏳
 
 ## 28. Next Steps
 
