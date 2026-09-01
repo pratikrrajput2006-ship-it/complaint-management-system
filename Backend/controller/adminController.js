@@ -1,6 +1,5 @@
 const bcrypt = require("bcrypt");
 const pool = require("../config/db");
-
 async function createAdmin(req, res) {
   const { name, email, password, phone, emp_no, designation } = req.body;
 
