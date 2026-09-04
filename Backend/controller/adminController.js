@@ -105,4 +105,114 @@ async function createAdmin(req, res) {
   }
 }
 
-module.exports = { createAdmin };
+async function getAdminProfile(req, res) {
+  let connection;
+
+  try {
+    connection = await pool.getConnection();
+
+    const [rows] = await connection.query(
+      "SELECT user.user_id, user.name, user.email, user.phone, user.status, admin.employee_no, admin.designation FROM user JOIN admin ON user.user_id = admin.admin_id WHERE user.user_id = ?",
+      [req.user.user_id],
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        Message: "Admin profile not found",
+      });
+    }
+
+    return res.status(200).json({
+      Message: "Admin profile fetched successfully",
+      admin: rows[0],
+    });
+  } catch (error) {
+    console.error("Get Admin profile error:", error.message);
+
+    return res.status(500).json({
+      Message: "Failed to fetch Admin profile",
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+}
+async function updateAdminProfile(req, res) {
+  const { name, phone, email, designation } = req.body;
+
+  let connection;
+
+  try {
+    // Check whether at least one field is provided
+    if (!name && !phone && !email && !designation) {
+      return res.status(400).json({
+        Message: "At least one field is required",
+      });
+    }
+
+    connection = await pool.getConnection();
+
+    // Start transaction because we may update two tables
+    await connection.beginTransaction();
+
+    // USER table update
+    const updates = [];
+    const values = [];
+
+    if (name) {
+      updates.push("name=?");
+      values.push(name);
+    }
+
+    if (phone) {
+      updates.push("phone=?");
+      values.push(phone);
+    }
+
+    if (email) {
+      updates.push("email=?");
+      values.push(email);
+    }
+
+    if (updates.length > 0) {
+      values.push(req.user.user_id);
+      // .join() combines multiple update expressions into one string
+      await connection.query(
+        `UPDATE user
+          SET ${updates.join(", ")}
+          WHERE user_id = ?`,
+        values,
+      );
+    }
+    if (designation) {
+      await connection.query(
+        `UPDATE admin
+         SET designation = ?
+         WHERE admin_id = ?`,
+        [designation, req.user.user_id],
+      );
+    }
+    // Save both updates
+    await connection.commit();
+
+    return res.status(200).json({
+      Message: "Admin profile updated successfully",
+    });
+  } catch (error) {
+    console.error("Update Admin profile error:", error.message);
+
+    if (connection) {
+      await connection.rollback();
+    }
+
+    return res.status(500).json({
+      Message: "Failed to update Admin profile",
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+}
+module.exports = { createAdmin, getAdminProfile, updateAdminProfile };
