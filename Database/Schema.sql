@@ -24,3 +24,12 @@ CREATE TABLE id_sequence(
     role VARCHAR(30) PRIMARY KEY,
     next_number INT NOT NULL
 );
+
+CREATE TABLE staff(
+    staff_id VARCHAR(10) PRIMARY KEY,
+    employee_no VARCHAR(10) NOT NULL UNIQUE,
+    department VARCHAR(50) NOT NULL,
+    designation VARCHAR(50) NOT NULL,
+    HA_status VARCHAR(20) NOT NULL DEFAULT 'NONE',
+    FOREIGN KEY (staff_id) REFERENCES user(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+);

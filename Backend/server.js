@@ -1,8 +1,10 @@
 const express=require('express');
-const router= require('./routes/adminRouter');
+const adminRouter= require('./routes/adminRouter');
 const authRouter = require("./routes/authRouter");
+const staffRouter=require('./routes/staffRouter');
 const app=express();
 app.use(express.json());
-app.use('/api/admin',router);
+app.use('/api/admin',adminRouter);
 app.use('/api',authRouter);
+app.use('/api/staff',staffRouter);
 app.listen(3000);
