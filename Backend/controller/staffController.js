@@ -11,7 +11,6 @@ async function createStaff(req, res) {
       !name ||
       !email ||
       !password ||
-      !phone ||
       !employee_no ||
       !department ||
       !designation

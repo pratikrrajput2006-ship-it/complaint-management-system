@@ -49,3 +49,17 @@ CREATE TABLE staff(
 --         ON DELETE CASCADE
 --         ON UPDATE CASCADE
 -- );
+
+CREATE TABLE student (
+    student_id VARCHAR(10) PRIMARY KEY,
+    prn VARCHAR(20) NOT NULL UNIQUE,
+    department VARCHAR(100) NOT NULL,
+    course VARCHAR(100),
+    year INT,
+    address VARCHAR(255),
+
+    FOREIGN KEY (student_id)
+        REFERENCES user(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
