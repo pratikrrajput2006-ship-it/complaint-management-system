@@ -8,7 +8,7 @@ async function createStudent(req, res) {
     password,
     phone,
     prn,
-    department,
+    department_id,
     course,
     year,
     address,
@@ -16,7 +16,7 @@ async function createStudent(req, res) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   let connection;
   try {
-    if (!name || !email || !password || !prn || !department) {
+    if (!name || !email || !password || !prn || !department_id) {
       return res.status(400).json({
         message: "Fill required Details",
       });
@@ -37,6 +37,18 @@ async function createStudent(req, res) {
 
     connection = await pool.getConnection();
     connection.beginTransaction();
+    const [department_rows]=await connection.query(
+      'SELECT department_id FROM department WHERE department_id=? AND status="ACTIVE"',
+      [department_id]
+    );
+    if(department_rows==0){
+      await connection.rollback();
+      return res.status(403).json(
+        {
+           message: "Invalid or inactive department",
+        }
+      )
+    }
     const [rows] = await connection.query(
       "SELECT next_number FROM id_sequence WHERE role=? FOR UPDATE",
       ["Student"],
@@ -58,8 +70,8 @@ async function createStudent(req, res) {
       ["Student"],
     );
     await connection.query(
-      "INSERT INTO student(student_id, prn, department,course,year, address) VALUES (?,?,?,?,?,?)",
-      [user_id, prn, department, course, year, address],
+      "INSERT INTO student(student_id, prn,course,year, address, department_id) VALUES (?,?,?,?,?,?)",
+      [user_id, prn, course, year, address, department_id],
     );
     await connection.commit();
     res.status(200).json({
@@ -87,11 +99,28 @@ async function getstudentProfile(req, res) {
   try {
     const connection = await pool.getConnection();
     const [rows] = await connection.query(
-      "SELECT user.user_id,user.name,user.email,user.role,user.phone,user.status,student.prn,student.department,student.course,student.year,student.address FROM user JOIN student ON user.user_id=student.student_id WHERE user.user_id=?",
+      `SELECT user.user_id,
+      user.name,
+      user.email,
+      user.role,
+      user.phone,
+      user.status,
+      student.prn,
+      student.department_id,
+      student.course,
+      student.year,
+      student.address,
+      department.department_name
+      FROM user 
+      JOIN student 
+      ON user.user_id=student.student_id
+      JOIN department
+      ON student.department_id=department.department_id
+      WHERE user.user_id=?`,
       [req.user.user_id],
     );
-    if (rows[0].length == 0) {
-      return res.status[404].json({
+    if (rows.length == 0) {
+      return res.status(404).json({
         message: "Student Profile is not found",
       });
     }
@@ -113,12 +142,12 @@ async function getstudentProfile(req, res) {
 }
 
 async function updateStudentProfile(req, res) {
-  const { name, phone, email,prn, department,course,year,address} = req.body;
+  const { name, phone, email,prn, department_id,course,year,address} = req.body;
   let connection;
   try {
     connection = await pool.getConnection();
     await connection.beginTransaction();
-    if (!name && !phone && !email && !department&& !prn && !course && !year && !address) {
+    if (!name && !phone && !email && !department_id&& !prn && !course && !year && !address) {
       return res.status(404).json({
         message: "Not any change at least one change is required",
       });
@@ -151,9 +180,9 @@ async function updateStudentProfile(req, res) {
     const studentUpdates = [];
     const studentValues = [];
 
-    if (department) {
-      studentUpdates.push("department = ?");
-      studentValues.push(department);
+    if (department_id) {
+      studentUpdates.push("department_id = ?");
+      studentValues.push(department_id);
     }
 
     if (prn) {
