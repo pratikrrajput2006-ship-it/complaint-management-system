@@ -1,40 +1,33 @@
-# Department-Level HA Workflow
+# Department Design
 
-The Department-Level Higher Authority (HA) is an additional authority assigned to an existing Staff account.
+Department is a master database entity, not a user.
 
-## Workflow
+## Concept
 
-Existing STAFF
-     ↓
-College recommends / nominates
-     ↓
-Admin makes the final decision
-     ↓
-Admin selects the existing Staff
-     ↓
-Admin assigns that Staff as HA
-     ↓
-Admin selects the HA's responsible Department
+DEPARTMENT
+    ↓
+STUDENT
+STAFF
+HA
+COMPLAINT
 
-## Important Rules
-
-- HA is not a separate user account.
-- HA does not receive a separate HA ID.
-- The existing Staff ID is retained.
-- HA uses the existing Staff login.
-- A Staff member's own department can be different from the HA department.
-- Admin is the final decision-maker inside the CMS.
+Students and Staff select an existing department during account creation.
+The frontend shows the department name, while the backend stores the
+corresponding department_id.
 
 ## Example
 
-Staff:
-STF005
-Current Department: Mechanical
+DEP001 → Computer Science and Engineering
+DEP002 → Mechanical Engineering
+DEP003 → Civil Engineering
 
-Admin assigns:
+STU001 → DEP001
+STF005 → DEP002
 
-HA Department: CSE
+The department_id is a foreign key to the DEPARTMENT table.
 
-Result:
+## Important Rule
 
-STF005 = CSE Department HA
+Department names should not be repeatedly stored as free text in
+Student and Staff records. The Department table is the single source
+of truth for department information.

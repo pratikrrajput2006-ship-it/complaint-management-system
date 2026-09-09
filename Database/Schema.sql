@@ -34,22 +34,6 @@ CREATE TABLE staff(
     FOREIGN KEY (staff_id) REFERENCES user(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- CREATE TABLE ha_request (
---     request_id VARCHAR(10) PRIMARY KEY,
---     staff_id VARCHAR(10) NOT NULL,
---     reason TEXT NOT NULL,
---     status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
---     requested_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
---     reviewed_by VARCHAR(10),
---     reviewed_at DATETIME,
---     remarks TEXT,
-
---     FOREIGN KEY (staff_id)
---         REFERENCES staff(staff_id)
---         ON DELETE CASCADE
---         ON UPDATE CASCADE
--- );
-
 CREATE TABLE student (
     student_id VARCHAR(10) PRIMARY KEY,
     prn VARCHAR(20) NOT NULL UNIQUE,
