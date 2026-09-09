@@ -2,8 +2,15 @@ const pool = require("../config/db");
 const bcrypt = require("bcrypt");
 
 async function createStaff(req, res) {
-  const { name, email, password, phone, employee_no, department, designation } =
-    req.body;
+  const {
+    name,
+    email,
+    password,
+    phone,
+    employee_no,
+    department_id,
+    designation,
+  } = req.body;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   let connection;
   try {
@@ -12,7 +19,7 @@ async function createStaff(req, res) {
       !email ||
       !password ||
       !employee_no ||
-      !department ||
+      !department_id ||
       !designation
     ) {
       return res.status(401).json({
@@ -31,17 +38,27 @@ async function createStaff(req, res) {
         message: "Password length must be at least 8 characters",
       });
     }
+
     connection = await pool.getConnection();
     await connection.beginTransaction();
-
+    const [department_rows] = await connection.query(
+      'SELECT department_id FROM department WHERE department_id=? AND status="ACTIVE"',
+      [department_id],
+    );
+    if (department_rows.length == 0) {
+      await connection.rollback();
+      return res.status(400).json({
+        message: "Invalid or inactive department",
+      });
+    }
     const hash_value = await bcrypt.hash(password, 10);
 
     const [rows] = await connection.query(
       "SELECT next_number FROM id_sequence WHERE role=? FOR UPDATE",
-      ["Staff"],
+      ["STAFF"],
     );
     if (rows.length === 0) {
-      throw new Error("ADMIN sequence not found");
+      throw new Error("Staff sequence not found");
     }
     const contain_value = rows[0].next_number;
     const create_id = `STF${String(contain_value).padStart(3, 0)}`;
@@ -50,8 +67,8 @@ async function createStaff(req, res) {
       [create_id, name, email, hash_value, "Staff", phone],
     );
     await connection.query(
-      "INSERT INTO staff (staff_id, employee_no,department, designation) VALUES (?,?,?,?)",
-      [create_id, employee_no, department, designation],
+      "INSERT INTO staff (staff_id, employee_no, designation,department_id) VALUES (?,?,?,?)",
+      [create_id, employee_no, designation, department_id],
     );
     await connection.query(
       "UPDATE id_sequence SET next_number = next_number + 1 WHERE role=?",
@@ -84,11 +101,29 @@ async function getStaffProfile(req, res) {
   try {
     const connection = await pool.getConnection();
     const [rows] = await connection.query(
-      "SELECT user.user_id,user.name,user.email,user.role,user.phone,user.status,staff.employee_no,staff.department,staff.designation,staff.HA_status FROM user JOIN staff ON user.user_id=staff.staff_id WHERE user.user_id=?",
+      `SELECT
+          user.user_id,
+          user.name,
+          user.email,
+          user.role,
+          user.phone,
+          user.status,
+          user.created_at,
+          staff.employee_no,
+          staff.department_id,
+          department.department_name,
+          staff.designation,
+          staff.ha_status
+       FROM user
+       JOIN staff
+         ON user.user_id = staff.staff_id
+       JOIN department
+         ON staff.department_id = department.department_id
+       WHERE user.user_id = ?`,
       [req.user.user_id],
     );
-    if (rows[0].length == 0) {
-      return res.status[404].json({
+    if (rows.length == 0) {
+      return res.status(404).json({
         message: "Staffprofile is not found",
       });
     }
@@ -110,12 +145,12 @@ async function getStaffProfile(req, res) {
 }
 
 async function updateStaffProfile(req, res) {
-  const { name, phone, email, department, designation } = req.body;
+  const { name, phone, email, department_id, designation } = req.body;
   let connection;
   try {
     connection = await pool.getConnection();
     await connection.beginTransaction();
-    if (!name && !phone && !email && !department && !designation) {
+    if (!name && !phone && !email && !department_id && !designation) {
       return res.status(404).json({
         message: "Not any change at least one change is required",
       });
@@ -148,9 +183,9 @@ async function updateStaffProfile(req, res) {
     const staffUpdates = [];
     const staffValues = [];
 
-    if (department) {
-      staffUpdates.push("department = ?");
-      staffValues.push(department);
+    if (department_id) {
+      staffUpdates.push("department_id = ?");
+      staffValues.push(department_id);
     }
 
     if (designation) {
