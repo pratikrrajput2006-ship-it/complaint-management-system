@@ -2,7 +2,9 @@ const express = require("express");
 const {
   createAdmin,
   getAdminProfile,
-  updateAdminProfile
+  updateAdminProfile,
+  verifyStaffForHA,
+  assignHA
 } = require("../controller/adminController");
 const { authMiddleware } = require("../middleware/authmiddleware");
 const { rolemiddleware } = require("../middleware/rolemiddleware");
@@ -31,5 +33,17 @@ router.put(
   authMiddleware,
   rolemiddleware("Admin"),
   updateAdminProfile,
+);
+router.get(
+  "/staff/:staff_id",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  verifyStaffForHA,
+);
+router.post(
+  "/ha/assign",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  assignHA
 );
 module.exports = router;
