@@ -215,4 +215,168 @@ async function updateAdminProfile(req, res) {
     }
   }
 }
-module.exports = { createAdmin, getAdminProfile, updateAdminProfile };
+async function verifyStaffForHA(req, res) {
+  let connection;
+
+  try {
+    connection = await pool.getConnection();
+
+    const check_id = req.params.staff_id;
+
+    const [rows] = await connection.query(
+      `SELECT
+          user.user_id,
+          user.name,
+          user.status,
+          staff.employee_no,
+          staff.designation,
+          staff.ha_status,
+          staff.department_id,
+          department.department_name
+       FROM user
+       JOIN staff
+          ON user.user_id = staff.staff_id
+       JOIN department
+          ON staff.department_id = department.department_id
+       WHERE user.user_id = ?`,
+      [check_id],
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        Message: "Staff does not exist",
+      });
+    }
+
+    return res.status(200).json({
+      Message: "Staff found successfully",
+      Staff: rows[0],
+    });
+  } catch (error) {
+    console.error("Failed to fetch Staff data:", error.message);
+
+    return res.status(500).json({
+      Message: "Failed to fetch Staff data",
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+}
+
+async function assignHA(req, res) {
+  const { staff_id, department_id, remark } = req.body;
+
+  let connection;
+
+  try {
+    // 1. Basic validation
+    if (!staff_id || !department_id) {
+      return res.status(400).json({
+        Message: "Staff ID and Department ID are required",
+      });
+    }
+
+    // 2. Get database connection
+    connection = await pool.getConnection();
+
+    // 3. Start transaction
+    await connection.beginTransaction();
+
+    // 4. Check Staff exists and get current HA status
+    const [staffRows] = await connection.query(
+      `SELECT
+          staff_id,
+          ha_status
+       FROM staff
+       WHERE staff_id = ?`,
+      [staff_id],
+    );
+
+    // Staff not found
+    if (staffRows.length === 0) {
+      await connection.rollback();
+
+      return res.status(404).json({
+        Message: "Staff does not exist",
+      });
+    }
+
+    // 5. Check Staff already has active HA
+    if (staffRows[0].ha_status === "ACTIVE") {
+      await connection.rollback();
+
+      return res.status(409).json({
+        Message: "Staff already has an active HA assignment",
+      });
+    }
+
+    // 6. Check Department exists and is active
+    const [departmentRows] = await connection.query(
+      `SELECT
+          department_id,
+          department_name
+       FROM department
+       WHERE department_id = ?
+       AND status = 'ACTIVE'`,
+      [department_id],
+    );
+
+    if (departmentRows.length === 0) {
+      await connection.rollback();
+
+      return res.status(400).json({
+        Message: "Department does not exist or is inactive",
+      });
+    }
+
+    // 7. Create HA history record
+    await connection.query(
+      `INSERT INTO ha_history
+       (staff_id, department_id, assigned_by, remark)
+       VALUES (?, ?, ?, ?)`,
+      [staff_id, department_id, req.user.user_id, remark || null],
+    );
+
+    // 8. Update current Staff HA status
+    await connection.query(
+      `UPDATE staff
+       SET ha_status = ?
+       WHERE staff_id = ?`,
+      ["ACTIVE", staff_id],
+    );
+
+    // 9. Commit transaction
+    await connection.commit();
+
+    // 10. Send success response
+    return res.status(200).json({
+      Message: "HA assigned successfully",
+      HA: staff_id,
+      Department: department_name,
+    });
+  } catch (error) {
+    console.error("Failed to assign HA:", error.message);
+
+    if (connection) {
+      await connection.rollback();
+    }
+
+    return res.status(500).json({
+      Message: "Failed to assign HA",
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+}
+
+module.exports = {
+  createAdmin,
+  getAdminProfile,
+  updateAdminProfile,
+  verifyStaffForHA,
+  assignHA,
+};
