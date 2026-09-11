@@ -1,33 +1,42 @@
-# Department Design
+# Department-Level HA Assignment Design
 
-Department is a master database entity, not a user.
+The Higher Authority (HA) is an additional authority assigned to an
+existing Staff account.
 
-## Concept
+## HA Assignment Flow
 
-DEPARTMENT
+Existing Staff
     ↓
-STUDENT
-STAFF
-HA
-COMPLAINT
+College recommends / nominates
+    ↓
+Admin makes the final decision
+    ↓
+Admin selects the existing Staff
+    ↓
+Admin selects the responsible Department
+    ↓
+Staff becomes Department-Level HA
 
-Students and Staff select an existing department during account creation.
-The frontend shows the department name, while the backend stores the
-corresponding department_id.
+## Important Rules
+
+- HA is not a separate user account.
+- No separate HA login is created.
+- The existing Staff ID remains the permanent identity.
+- One Staff member can have only one active HA assignment at a time.
+- Previous HA assignments are preserved in HA history.
+- A Staff member's own department can be different from the HA department.
+- `STAFF.ha_status` represents the current HA state.
+- `ha_history` stores important HA assignment history.
 
 ## Example
 
-DEP001 → Computer Science and Engineering
-DEP002 → Mechanical Engineering
-DEP003 → Civil Engineering
+Staff ID: STF005
+Staff Department: Mechanical Engineering
 
-STU001 → DEP001
-STF005 → DEP002
+Admin assigns:
 
-The department_id is a foreign key to the DEPARTMENT table.
+HA Department: Computer Science and Engineering
 
-## Important Rule
+Result:
 
-Department names should not be repeatedly stored as free text in
-Student and Staff records. The Department table is the single source
-of truth for department information.
+STF005 = CSE Department HA
