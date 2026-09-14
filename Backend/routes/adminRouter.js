@@ -4,7 +4,9 @@ const {
   getAdminProfile,
   updateAdminProfile,
   verifyStaffForHA,
-  assignHA
+  assignHA,
+  removeHA,
+  history_HA
 } = require("../controller/adminController");
 const { authMiddleware } = require("../middleware/authmiddleware");
 const { rolemiddleware } = require("../middleware/rolemiddleware");
@@ -45,5 +47,17 @@ router.post(
   authMiddleware,
   rolemiddleware("Admin"),
   assignHA
+);
+router.post(
+  "/ha/remove",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  removeHA
+);
+router.get(
+  "/staff/:staff_id/ha-history",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  history_HA
 );
 module.exports = router;
