@@ -372,11 +372,158 @@ async function assignHA(req, res) {
     }
   }
 }
+async function removeHA(req, res) {
+  const { staff_id } = req.body;
+  let connection;
 
+  try {
+    if (!staff_id) {
+      return res.status(400).json({
+        Message: "Staff ID is required",
+      });
+    }
+
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    const [staff_rows] = await connection.query(
+      `SELECT
+         staff.ha_status,
+         ha_history.status
+       FROM staff
+       JOIN ha_history
+         ON staff.staff_id = ha_history.staff_id
+       WHERE staff.staff_id = ?
+       AND ha_history.status = 'ACTIVE'`,
+      [staff_id],
+    );
+
+    console.log(staff_rows);
+
+    if (staff_rows.length === 0) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        Message: "Staff does not have an active HA assignment",
+      });
+    }
+
+    await connection.query(
+      `UPDATE staff
+       SET ha_status = 'NONE'
+       WHERE staff_id = ?`,
+      [staff_id],
+    );
+
+    await connection.query(
+      `UPDATE ha_history
+       SET ended_at = CURRENT_TIMESTAMP,
+           status = 'INACTIVE'
+       WHERE staff_id = ?
+       AND status = 'ACTIVE'`,
+      [staff_id],
+    );
+
+    await connection.commit();
+
+    return res.status(200).json({
+      Message: "HA removed successfully",
+      Staff: staff_id,
+    });
+  } catch (error) {
+    console.error("Failed to remove HA:", error.message);
+
+    if (connection) {
+      await connection.rollback();
+    }
+
+    return res.status(500).json({
+      Message: "Failed to remove HA",
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+}
+async function history_HA(req, res) {
+  const { staff_id } = req.params;
+
+  let connection;
+
+  try {
+    if (!staff_id) {
+      return res.status(400).json({
+        Message: "Staff ID is required",
+      });
+    }
+
+    connection = await pool.getConnection();
+
+    // Check Staff exists
+    const [staffRows] = await connection.query(
+      `SELECT staff_id
+       FROM staff
+       WHERE staff_id = ?`,
+      [staff_id]
+    );
+
+    if (staffRows.length === 0) {
+      return res.status(404).json({
+        Message: "Staff does not exist",
+      });
+    }
+
+    // Get complete HA history
+    const [historyRows] = await connection.query(
+      `SELECT
+          ha_history.history_id,
+          ha_history.staff_id,
+          ha_history.department_id,
+          department.department_name,
+          ha_history.assigned_by,
+          user.name AS assigned_by_name,
+          ha_history.assigned_at,
+          ha_history.ended_at,
+          ha_history.status,
+          ha_history.remark
+       FROM ha_history
+       JOIN department
+         ON ha_history.department_id = department.department_id
+       JOIN admin
+         ON ha_history.assigned_by = admin.admin_id
+       JOIN user
+         ON admin.admin_id = user.user_id
+       WHERE ha_history.staff_id = ?
+       ORDER BY ha_history.assigned_at DESC`,
+      [staff_id]
+    );
+
+    return res.status(200).json({
+      Message: "Higher Authority History",
+      Staff: staff_id,
+      History: historyRows,
+    });
+
+  } catch (error) {
+    console.error("Failed to fetch HA history:", error.message);
+
+    return res.status(500).json({
+      Message: "Failed to fetch HA history",
+    });
+
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+}
 module.exports = {
   createAdmin,
   getAdminProfile,
   updateAdminProfile,
   verifyStaffForHA,
   assignHA,
+  removeHA,
+  history_HA
 };
