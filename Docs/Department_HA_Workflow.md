@@ -40,3 +40,14 @@ HA Department: Computer Science and Engineering
 Result:
 
 STF005 = CSE Department HA
+Purpose
+Concept
+Approval flow
+Staff verification
+HA assignment
+HA removal
+HA history
+Important rules
+Security
+Testing
+Final workflow
