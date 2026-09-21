@@ -937,97 +937,29 @@ The following decisions are considered final for the current project scope:
 
 ---
 
-## 27. Current Project Status
+## 27. ## Current Development Status
 
-### Completed
-
-- Project requirements and workflow planning
-- Database and ER design
-- USER and ADMIN tables
-- ID_SEQUENCE and automatic Admin ID generation
-- Admin controlled account creation
-- Admin login using common `/api/login`
-- Password hashing with bcrypt
-- JWT authentication
-- Authentication middleware
-- Role-based authorization middleware
-- Protected Admin dashboard
-- Admin profile API
-- Admin profile update API
-- STAFF table
-- Staff account creation
-- Automatic Staff ID generation
-- Staff login using common `/api/login`
-- Staff authentication and authorization
-- Staff profile API
-- Staff profile update API
-- API testing with Postman
-- Git/GitHub project setup
-
-### Current Development Stage
-
-Staff module completed.
-
-### Next
-
+### Completed Modules
+- User and role-based account structure
+- Admin module
+- Staff module
 - Student module
-- Student account creation
-- Student profile
-- Student authorization
-- Complaint management
-- Complaint assignment
-- Complaint tracking/history
-- Notifications
-- Feedback
-- Frontend integration
+- Authentication and JWT
+- Role-based authorization
+- Department master module
+- Department ID integration
+- Department-Level Higher Authority (HA)
+- HA assignment and removal
+- HA history preservation
+- Admin Staff verification for HA
 
-### Higher Authority Design
+### Next Module
+- Category Management
+- Complaint Management
 
-Higher Authority is currently under design discussion.
-
-Current agreed direction:
-- HA does not have a separate HA ID
-- HA is additional authority associated with a Staff account
-- Staff ID remains permanent
-- HA assignment/approval model is not finalized yet
-- No HA-specific database implementation is currently active
-
-### Security
-
-- Passwords stored using bcrypt hash
-- JWT used for authentication
-- Protected APIs use authentication middleware
-- Role-based authorization is implemented
-- Admin accounts are intended to be deactivated rather than normally deleted
-## 28. Next Steps
-
-Recommended implementation order:
-
-```text
-1. Final ER diagram
-2. Final schema diagram
-3. MySQL database
-4. SQL CREATE TABLE script
-5. Registration UI completion
-6. Login UI
-7. Student UI
-8. Staff UI
-9. Admin UI
-10. Higher Authority UI
-11. Backend authentication
-12. Complaint APIs
-13. Assignment and tracking
-14. Notifications
-15. Feedback
-16. Testing
-17. Deployment
-```
-## Project Progress
-
-Admin authentication implemented.
-JWT authentication and protected dashboard completed.
----
-
+### Current Status
+Project development is temporarily paused for semester examinations.
+Development will resume with the Category module after the exams.
 ## Technology Stack
 
 - **Frontend:** HTML, CSS, JavaScript
