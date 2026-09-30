@@ -93,3 +93,15 @@ CREATE TABLE ha_history (
         ON DELETE RESTRICT
         ON UPDATE CASCADE
 );
+CREATE TABLE category (
+    category_id VARCHAR(10) PRIMARY KEY,
+    category_name VARCHAR(100) NOT NULL UNIQUE,
+    routing_type VARCHAR(30) NOT NULL,
+    department_id VARCHAR(10),
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (department_id)
+        REFERENCES department(department_id)
+        ON UPDATE CASCADE
+);
