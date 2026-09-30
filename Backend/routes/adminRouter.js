@@ -6,7 +6,11 @@ const {
   verifyStaffForHA,
   assignHA,
   removeHA,
-  history_HA
+  history_HA,
+  createDepartment,
+  getDepartments,
+  updateDepartment,
+  updateDepartmentStatus
 } = require("../controller/adminController");
 const { authMiddleware } = require("../middleware/authmiddleware");
 const { rolemiddleware } = require("../middleware/rolemiddleware");
@@ -42,22 +46,36 @@ router.get(
   rolemiddleware("Admin"),
   verifyStaffForHA,
 );
-router.post(
-  "/ha/assign",
-  authMiddleware,
-  rolemiddleware("Admin"),
-  assignHA
-);
-router.post(
-  "/ha/remove",
-  authMiddleware,
-  rolemiddleware("Admin"),
-  removeHA
-);
+router.post("/ha/assign", authMiddleware, rolemiddleware("Admin"), assignHA);
+router.post("/ha/remove", authMiddleware, rolemiddleware("Admin"), removeHA);
 router.get(
   "/staff/:staff_id/ha-history",
   authMiddleware,
   rolemiddleware("Admin"),
-  history_HA
+  history_HA,
+);
+router.post(
+  "/department",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  createDepartment,
+);
+router.get(
+  "/departments",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  getDepartments
+);
+router.put(
+  "/departments/:department_id",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  updateDepartment
+);
+router.patch(
+  "/departments/:department_id/status",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  updateDepartmentStatus
 );
 module.exports = router;
