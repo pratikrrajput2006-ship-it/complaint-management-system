@@ -1,9 +1,11 @@
 const express=require('express');
+const cors=require('cors');
 const adminRouter= require('./routes/adminRouter');
 const authRouter = require("./routes/authRouter");
 const staffRouter=require('./routes/staffRouter');
 const studentRouter=require('./routes/studentRouter');
 const app=express();
+app.use(cors());
 app.use(express.json());
 app.use('/api',authRouter);
 app.use('/api/admin',adminRouter);
