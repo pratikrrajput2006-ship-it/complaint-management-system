@@ -55,7 +55,7 @@ router.get(
   history_HA,
 );
 router.post(
-  "/department",
+  "/departments",
   authMiddleware,
   rolemiddleware("Admin"),
   createDepartment,
