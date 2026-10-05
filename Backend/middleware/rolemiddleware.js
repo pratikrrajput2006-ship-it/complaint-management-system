@@ -12,4 +12,3 @@ function rolemiddleware(allowedroll) {
 
 module.exports = { rolemiddleware };
 
-module.exports = { rolemiddleware };
