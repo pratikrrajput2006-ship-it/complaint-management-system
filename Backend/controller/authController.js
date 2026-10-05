@@ -48,6 +48,7 @@ async function loginadmin(req, res) {
     return res.status(200).json({
       Message: "User login successfully",
       user_id: database_user[0].user_id,
+      name:database_user[0].name,
       role: database_user[0].role,
       token:token,
     });
