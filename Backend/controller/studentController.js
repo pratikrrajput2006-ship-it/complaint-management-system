@@ -33,7 +33,7 @@ async function createStudent(req, res) {
         message: "Password length must be at least 8 characters",
       });
     }
-    const hash_password = await bcrypt.hash(password, Math.random() * 10);
+    const hash_password = await bcrypt.hash(password, 10);
 
     connection = await pool.getConnection();
     connection.beginTransaction();
@@ -41,7 +41,7 @@ async function createStudent(req, res) {
       'SELECT department_id FROM department WHERE department_id=? AND status="ACTIVE"',
       [department_id]
     );
-    if(department_rows==0){
+    if (department_rows.length === 0) {
       await connection.rollback();
       return res.status(403).json(
         {
