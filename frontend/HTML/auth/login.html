@@ -1,66 +1,56 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>CMS - Login</title>
 
-    <link rel="stylesheet" href="../../CSS/auth/login.css">
-</head>
+    <link rel="stylesheet" href="../../CSS/auth/login.css" />
+  </head>
 
-<body>
-
+  <body>
     <main class="login-container">
+      <section class="login-card">
+        <div class="login-header">
+          <h1>Complaint Management System</h1>
+          <p>Login to your account</p>
+        </div>
 
-        <section class="login-card">
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="email">Email</label>
 
-            <div class="login-header">
-                <h1>Complaint Management System</h1>
-                <p>Login to your account</p>
-            </div>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter your email"
+              autocomplete="email"
+              required
+            />
+          </div>
 
-            <form id="loginForm">
+          <div class="form-group">
+            <label for="password">Password</label>
 
-                <div class="form-group">
-                    <label for="email">Email</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            />
+          </div>
 
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        placeholder="Enter your email"
-                        autocomplete="email"
-                        required
-                    >
-                </div>
+          <button type="submit" id="loginButton">Login</button>
 
-                <div class="form-group">
-                    <label for="password">Password</label>
-
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Enter your password"
-                        autocomplete="current-password"
-                        required
-                    >
-                </div>
-
-                <button type="submit" id="loginButton">
-                    Login
-                </button>
-
-                <p id="message" class="message"></p>
-
-            </form>
-
-        </section>
-
+          <p id="message" class="message"></p>
+        </form>
+      </section>
     </main>
 
     <script src="../../JS/auth/login.js"></script>
-
-</body>
+  </body>
 </html>
