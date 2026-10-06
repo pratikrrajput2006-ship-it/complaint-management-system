@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Department Management - CMS</title>
+
+    <link rel="stylesheet" href="../../css/Admin/departments.css" />
+  </head>
+
+  <body>
+    <header class="dashboard-header">
+      <div class="logo-area">
+        <h1>CMS</h1>
+        <span>Complaint Management System</span>
+      </div>
+
+      <div class="admin-area">
+        <span id="adminName"></span>
+        <button id="logoutButton">Logout</button>
+      </div>
+    </header>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-link"> Dashboard </a>
+
+          <a href="departments.html" class="nav-link active"> Departments </a>
+
+          <a href="authority.html" class="nav-link">Higher Authority </a>
+
+          <a href="categories.html" class="nav-link"> Categories </a>
+
+          <a href="complaints.html" class="nav-link"> Complaints </a>
+
+          <a href="feedback.html" class="nav-link"> Feedback </a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <section class="welcome-section">
+          <h2>Department Management</h2>
+
+          <p>Create, view and manage college departments.</p>
+        </section>
+
+        <section class="department-form-section">
+          <h3>Add Department</h3>
+
+          <form id="departmentForm" class="department-form">
+            <div class="form-group">
+              <label for="departmentName"> Department Name </label>
+
+              <input
+                type="text"
+                id="departmentName"
+                name="departmentName"
+                placeholder="Enter department name"
+                required
+              />
+            </div>
+
+            <button type="submit" class="add-department-button">
+              Add Department
+            </button>
+          </form>
+        </section>
+
+        <section class="department-list-section">
+          <h3>Departments</h3>
+
+          <div class="department-table-wrapper">
+            <table class="department-table">
+              <thead>
+                <tr>
+                  <th>Department ID</th>
+                  <th>Department Name</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+
+              <tbody id="departmentTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+    <!-- EDIT DEPARTMENT PANEL -->
+
+    <div class="edit-panel-overlay" id="editPanelOverlay" hidden></div>
+
+    <aside class="edit-panel" id="editDepartmentPanel" aria-hidden="true">
+      <div class="edit-panel-header">
+        <h3>Edit Department</h3>
+
+        <button type="button" id="closeEditPanel" class="close-edit-panel">
+          &times;
+        </button>
+      </div>
+
+      <form id="editDepartmentForm">
+        <div class="form-group">
+          <label for="editDepartmentId"> Department ID </label>
+
+          <input type="text" id="editDepartmentId" readonly />
+        </div>
+
+        <div class="form-group">
+          <label for="editDepartmentName"> Department Name </label>
+
+          <input
+            type="text"
+            id="editDepartmentName"
+            placeholder="Enter department name"
+            required
+          />
+        </div>
+
+        <div class="edit-form-actions">
+          <button
+            type="button"
+            id="cancelEditButton"
+            class="edit-cancel-button"
+          >
+            Cancel
+          </button>
+
+          <button type="submit" class="edit-save-button">Save Changes</button>
+        </div>
+      </form>
+    </aside>
+  </body>
+  <script src="../../JS/Admin/departments.js"></script>
+</html>
