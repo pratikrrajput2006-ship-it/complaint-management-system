@@ -1,0 +1,694 @@
+/* =========================
+   RESET
+========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+}
+
+
+/* =========================
+   BODY
+========================= */
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f7fb;
+    color: #1e293b;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.dashboard-header {
+    width: 100%;
+    min-height: 70px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 28px;
+
+    background: #1e2a4a;
+    color: #ffffff;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.logo-area h1 {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.logo-area span {
+    font-size: 15px;
+    color: #cbd5e1;
+}
+
+.admin-area {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+#adminName {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+#logoutButton {
+    border: none;
+    border-radius: 7px;
+
+    padding: 9px 16px;
+
+    background: #ffffff;
+    color: #1e2a4a;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+#logoutButton:hover {
+    background: #e2e8f0;
+}
+
+
+/* =========================
+   DASHBOARD LAYOUT
+========================= */
+
+.dashboard-layout {
+    display: flex;
+    min-height: calc(100vh - 70px);
+}
+
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar {
+    width: 240px;
+    flex-shrink: 0;
+
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
+
+    padding: 24px 14px;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.nav-link {
+    display: block;
+
+    padding: 13px 16px;
+
+    border-radius: 8px;
+
+    color: #475569;
+    text-decoration: none;
+
+    font-size: 15px;
+    font-weight: 500;
+
+    transition: 0.2s ease;
+}
+
+.nav-link:hover {
+    background: #f1f5f9;
+    color: #1e40af;
+}
+
+.nav-link.active {
+    background: #e8efff;
+    color: #1d4ed8;
+    font-weight: 600;
+}
+
+
+/* =========================
+   MAIN CONTENT
+========================= */
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+
+    padding: 32px;
+}
+
+
+/* =========================
+   WELCOME SECTION
+========================= */
+
+.welcome-section {
+    margin-bottom: 28px;
+}
+
+.welcome-section h2 {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.welcome-section p {
+    color: #64748b;
+    font-size: 15px;
+}
+
+
+/* =========================
+   DEPARTMENT SECTIONS
+========================= */
+
+.department-form-section,
+.department-list-section {
+    background: #ffffff;
+
+    padding: 24px;
+
+    border-radius: 12px;
+
+    border: 1px solid #e2e8f0;
+
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+
+    margin-bottom: 24px;
+}
+
+.department-form-section h3,
+.department-list-section h3 {
+    margin-bottom: 18px;
+
+    font-size: 18px;
+    color: #1e293b;
+}
+
+
+/* =========================
+   FORM
+========================= */
+
+.department-form {
+    display: flex;
+    gap: 14px;
+    align-items: flex-end;
+}
+
+.form-group {
+    flex: 1;
+}
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    color: #475569;
+}
+
+.form-group input {
+    width: 100%;
+
+    padding: 11px 13px;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+
+    font-size: 14px;
+
+    outline: none;
+}
+
+.form-group input:focus {
+    border-color: #1d4ed8;
+}
+
+
+/* =========================
+   BUTTON
+========================= */
+
+.add-department-button {
+    border: none;
+    border-radius: 7px;
+
+    padding: 11px 18px;
+
+    background: #1d4ed8;
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.add-department-button:hover {
+    background: #1e40af;
+}
+
+
+/* =========================
+   DEPARTMENT TABLE
+========================= */
+
+.department-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.department-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    min-width: 650px;
+}
+
+.department-table th,
+.department-table td {
+    padding: 14px 16px;
+
+    text-align: left;
+
+    border-bottom: 1px solid #e2e8f0;
+
+    font-size: 14px;
+}
+
+.department-table th {
+    background: #f8fafc;
+
+    color: #64748b;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.department-table td {
+    color: #334155;
+}
+
+
+/* =========================
+   STATUS
+========================= */
+
+.department-status {
+    display: inline-block;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.action-button {
+    border: none;
+    border-radius: 6px;
+
+    padding: 7px 11px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.edit-button {
+    background: #e8efff;
+    color: #1d4ed8;
+}
+
+.status-button {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.action-button:hover {
+    opacity: 0.85;
+}
+
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 1000px) {
+
+    .sidebar {
+        width: 210px;
+    }
+
+    .main-content {
+        padding: 24px;
+    }
+
+    .department-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 700px) {
+
+    .dashboard-header {
+        min-height: auto;
+
+        flex-direction: column;
+        align-items: stretch;
+
+        gap: 14px;
+
+        padding: 18px;
+    }
+
+    .logo-area {
+        justify-content: center;
+        text-align: center;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .admin-area {
+        justify-content: center;
+    }
+
+    .dashboard-layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+
+        padding: 12px;
+    }
+
+    .sidebar-nav {
+        flex-direction: row;
+
+        overflow-x: auto;
+
+        gap: 8px;
+    }
+
+    .nav-link {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    .main-content {
+        padding: 20px;
+    }
+}
+
+
+/* =========================
+   SMALL MOBILE
+========================= */
+
+@media (max-width: 400px) {
+
+    .main-content {
+        padding: 14px;
+    }
+
+    .logo-area h1 {
+        font-size: 24px;
+    }
+
+    .logo-area span {
+        font-size: 13px;
+    }
+
+    .admin-area {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    #logoutButton {
+        width: 100%;
+    }
+
+    .department-form-section,
+    .department-list-section {
+        padding: 18px;
+    }
+}
+/* =========================
+   EDIT PANEL OVERLAY
+========================= */
+
+.edit-panel-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(15, 23, 42, 0.35);
+
+    z-index: 1000;
+}
+
+
+/* =========================
+   EDIT PANEL
+========================= */
+
+.edit-panel {
+    position: fixed;
+
+    top: 0;
+    right: 0;
+
+    width: 420px;
+    max-width: 100%;
+
+    height: 100vh;
+
+    background: #ffffff;
+
+    box-shadow: -8px 0 24px rgba(15, 23, 42, 0.12);
+
+    z-index: 1001;
+
+    padding: 24px;
+
+    transform: translateX(100%);
+
+    transition: transform 0.3s ease;
+
+    overflow-y: auto;
+}
+
+
+/* =========================
+   OPEN PANEL
+========================= */
+
+.edit-panel.open {
+    transform: translateX(0);
+}
+
+
+/* =========================
+   PANEL HEADER
+========================= */
+
+.edit-panel-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 30px;
+
+    padding-bottom: 16px;
+
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.edit-panel-header h3 {
+    font-size: 20px;
+
+    color: #1e293b;
+}
+
+.close-edit-panel {
+    width: 36px;
+    height: 36px;
+
+    border: none;
+    border-radius: 7px;
+
+    background: #f1f5f9;
+
+    color: #475569;
+
+    font-size: 24px;
+
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+.close-edit-panel:hover {
+    background: #e2e8f0;
+}
+
+
+/* =========================
+   EDIT FORM
+========================= */
+
+#editDepartmentForm {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 20px;
+}
+
+#editDepartmentForm .form-group {
+    width: 100%;
+}
+
+#editDepartmentForm input {
+    width: 100%;
+
+    padding: 12px 13px;
+
+    border: 1px solid #cbd5e1;
+
+    border-radius: 7px;
+
+    font-size: 14px;
+
+    outline: none;
+}
+
+#editDepartmentForm input:focus {
+    border-color: #1d4ed8;
+}
+
+#editDepartmentForm input[readonly] {
+    background: #f8fafc;
+
+    color: #64748b;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================
+   EDIT FORM ACTIONS
+========================= */
+
+.edit-form-actions {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 12px;
+}
+
+.edit-save-button,
+.edit-cancel-button {
+    border: none;
+
+    border-radius: 7px;
+
+    padding: 11px 18px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.edit-save-button {
+    background: #1d4ed8;
+
+    color: #ffffff;
+}
+
+.edit-save-button:hover {
+    background: #1e40af;
+}
+
+.edit-cancel-button {
+    background: #f1f5f9;
+
+    color: #475569;
+}
+
+.edit-cancel-button:hover {
+    background: #e2e8f0;
+}
+
+
+/* =========================
+   MOBILE EDIT PANEL
+========================= */
+
+@media (max-width: 700px) {
+
+    .edit-panel {
+        width: 100%;
+
+        padding: 20px;
+    }
+}
