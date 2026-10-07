@@ -1,332 +1,164 @@
 const token = localStorage.getItem("token");
-const userData = localStorage.getItem("user");
+const user = JSON.parse(localStorage.getItem("user") || "null");
 
-if (!token || !userData) {
+if (!token || !user || user.role !== "Admin") {
   window.location.href = "../auth/login.html";
 } else {
-  const user = JSON.parse(userData);
+  const API_BASE = "http://localhost:3000/api/admin/departments";
 
-  if (user.role !== "Admin") {
+  // DOM Elements
+  const adminName = document.getElementById("adminName");
+  const logoutButton = document.getElementById("logoutButton");
+  const editDepartmentPanel = document.getElementById("editDepartmentPanel");
+  const editPanelOverlay = document.getElementById("editPanelOverlay");
+  const editDepartmentId = document.getElementById("editDepartmentId");
+  const editDepartmentName = document.getElementById("editDepartmentName");
+  const closeEditPanel = document.getElementById("closeEditPanel");
+  const cancelEditButton = document.getElementById("cancelEditButton");
+  const editDepartmentForm = document.getElementById("editDepartmentForm");
+  const departmentForm = document.getElementById("departmentForm");
+  const departmentTableBody = document.getElementById("departmentTableBody");
+
+  adminName.textContent = user.name;
+
+  logoutButton.addEventListener("click", () => {
+    localStorage.clear();
     window.location.href = "../auth/login.html";
-  } else {
-    /* =========================
-   ADMIN NAME
-========================= */
+  });
 
-    const adminName = document.getElementById("adminName");
+  // Reusable API Request Wrapper
+  async function apiCall(url, method = "GET", body = null) {
+    try {
+      const options = {
+        method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...(body && { "Content-Type": "application/json" }),
+        },
+        ...(body && { body: JSON.stringify(body) }),
+      };
 
-    adminName.textContent = user.name;
+      const response = await fetch(url, options);
+      const data = await response.json();
 
-    /* =========================
-   LOGOUT
-========================= */
-
-    const logoutButton = document.getElementById("logoutButton");
-
-    logoutButton.addEventListener("click", () => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-
-      window.location.href = "../auth/login.html";
-    });
-    /* =========================
-       EDIT PANEL ELEMENTS
-    ========================= */
-
-    const editDepartmentPanel = document.getElementById("editDepartmentPanel");
-
-    const editPanelOverlay = document.getElementById("editPanelOverlay");
-
-    const editDepartmentId = document.getElementById("editDepartmentId");
-
-    const editDepartmentName = document.getElementById("editDepartmentName");
-
-    const closeEditPanel = document.getElementById("closeEditPanel");
-
-    const cancelEditButton = document.getElementById("cancelEditButton");
-
-    const editDepartmentForm = document.getElementById("editDepartmentForm");
-
-    /* =========================
-       CLOSE EDIT PANEL
-    ========================= */
-
-    function closeEditDepartmentPanel() {
-      editDepartmentPanel.classList.remove("open");
-
-      editPanelOverlay.hidden = true;
-
-      editDepartmentPanel.setAttribute("aria-hidden", "true");
+      if (!response.ok) {
+        alert(data.Message || "Operation failed.");
+        return null;
+      }
+      return data;
+    } catch (error) {
+      console.error(`API Error [${method} ${url}]:`, error);
+      alert("Something went wrong. Please try again.");
+      return null;
     }
-
-    closeEditPanel.addEventListener("click", () => {
-      closeEditDepartmentPanel();
-    });
-
-    cancelEditButton.addEventListener("click", () => {
-      closeEditDepartmentPanel();
-    });
-
-    editPanelOverlay.addEventListener("click", () => {
-      closeEditDepartmentPanel();
-    });
-
-    /* =========================
-       LOAD DEPARTMENTS
-    ========================= */
-
-    async function loadDepartment() {
-      try {
-        const response = await fetch(
-          "http://localhost:3000/api/admin/departments",
-          {
-            method: "GET",
-
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          console.error("Failed to load departments:", data);
-
-          return;
-        }
-
-        const departmentTableBody = document.getElementById(
-          "departmentTableBody",
-        );
-
-        departmentTableBody.innerHTML = "";
-
-        data.Departments.forEach((department) => {
-          const row = document.createElement("tr");
-
-          row.innerHTML = `
-            <td>${department.department_id}</td>
-
-            <td>${department.department_name}</td>
-
-            <td>
-              <span class="department-status ${
-                department.status === "ACTIVE"
-                  ? "status-active"
-                  : "status-inactive"
-              }">
-                ${department.status}
-              </span>
-            </td>
-
-            <td>
-
-              <button
-                class="action-button edit-button"
-                data-department-id="${department.department_id}"
-              >
-                Edit
-              </button>
-
-              <button
-                class="action-button status-button"
-                data-department-id="${department.department_id}"
-              >
-                ${department.status === "ACTIVE" ? "Deactivate" : "Activate"}
-              </button>
-
-            </td>
-          `;
-
-          /* =========================
-             EDIT BUTTON
-          ========================= */
-
-          const editButton = row.querySelector(".edit-button");
-
-          editButton.addEventListener("click", () => {
-            const departmentId = editButton.dataset.departmentId;
-
-            editDepartmentId.value = departmentId;
-
-            editDepartmentName.value = department.department_name;
-
-            editDepartmentPanel.classList.add("open");
-
-            editPanelOverlay.hidden = false;
-
-            editDepartmentPanel.setAttribute("aria-hidden", "false");
-          });
-
-          /* =========================
-             ACTIVATE / DEACTIVATE
-          ========================= */
-
-          const statusButton = row.querySelector(".status-button");
-
-          statusButton.addEventListener("click", async () => {
-            const departmentId = statusButton.dataset.departmentId;
-
-            const newStatus =
-              department.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
-
-            const confirmChange = confirm(
-              `Are you sure you want to ${
-                newStatus === "INACTIVE" ? "deactivate" : "activate"
-              } this department?`,
-            );
-
-            if (!confirmChange) {
-              return;
-            }
-
-            try {
-              const response = await fetch(
-                `http://localhost:3000/api/admin/departments/${departmentId}/status`,
-                {
-                  method: "PATCH",
-
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                  },
-
-                  body: JSON.stringify({
-                    status: newStatus,
-                  }),
-                },
-              );
-
-              const data = await response.json();
-
-              if (!response.ok) {
-                alert(data.Message || "Failed to update department status.");
-
-                return;
-              }
-
-              alert(data.Message || "Department status updated successfully.");
-
-              loadDepartment();
-            } catch (error) {
-              console.error("Department status update error:", error);
-            }
-          });
-
-          departmentTableBody.appendChild(row);
-        });
-      } catch (error) {
-        console.error("Department loading error:", error);
-      }
-    }
-
-    /* =========================
-       INITIAL LOAD
-    ========================= */
-
-    loadDepartment();
-
-    /* =========================
-       ADD DEPARTMENT
-    ========================= */
-
-    const departmentForm = document.getElementById("departmentForm");
-
-    departmentForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const departmentName = document
-        .getElementById("departmentName")
-        .value.trim();
-
-      if (!departmentName) {
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          "http://localhost:3000/api/admin/departments",
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-
-            body: JSON.stringify({
-              Department_name: departmentName,
-            }),
-          },
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          alert(data.Message || "Failed to create department.");
-
-          return;
-        }
-
-        alert(data.Message || "Department created successfully.");
-
-        departmentForm.reset();
-
-        loadDepartment();
-      } catch (error) {
-        console.error("Department creation error:", error);
-      }
-    });
-
-    /* =========================
-       EDIT DEPARTMENT
-    ========================= */
-
-    editDepartmentForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const departmentId = editDepartmentId.value;
-
-      const departmentName = editDepartmentName.value.trim();
-
-      if (!departmentName) {
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          `http://localhost:3000/api/admin/departments/${departmentId}`,
-          {
-            method: "PUT",
-
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-
-            body: JSON.stringify({
-              department_name: departmentName,
-            }),
-          },
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          alert(data.Message || "Failed to update department.");
-
-          return;
-        }
-
-        alert(data.Message || "Department updated successfully.");
-
-        closeEditDepartmentPanel();
-
-        loadDepartment();
-      } catch (error) {
-        console.error("Department update error:", error);
-      }
-    });
   }
+
+  // Edit Panel Visibility Toggle
+  function toggleEditPanel(isOpen = false) {
+    editDepartmentPanel.classList.toggle("open", isOpen);
+    editPanelOverlay.hidden = !isOpen;
+    editDepartmentPanel.setAttribute("aria-hidden", String(!isOpen));
+  }
+
+  [closeEditPanel, cancelEditButton, editPanelOverlay].forEach((el) =>
+    el.addEventListener("click", () => toggleEditPanel(false)),
+  );
+
+     //LOAD & RENDER DEPARTMENTS
+  async function loadDepartment() {
+    const data = await apiCall(API_BASE);
+    if (!data?.Departments) return;
+
+    departmentTableBody.innerHTML = data.Departments.map(
+      (dept) => `
+      <tr>
+        <td>${dept.department_id}</td>
+        <td>${dept.department_name}</td>
+        <td>
+          <span class="department-status ${dept.status === "ACTIVE" ? "status-active" : "status-inactive"}">
+            ${dept.status}
+          </span>
+        </td>
+        <td>
+          <button class="action-button edit-button" data-id="${dept.department_id}" data-name="${dept.department_name}">
+            Edit
+          </button>
+          <button class="action-button status-button" data-id="${dept.department_id}" data-status="${dept.status}">
+            ${dept.status === "ACTIVE" ? "Deactivate" : "Activate"}
+          </button>
+        </td>
+      </tr>
+    `,
+    ).join("");
+  }
+
+
+    // EVENT DELEGATION (TABLE ACTIONS)
+  departmentTableBody.addEventListener("click", async (e) => {
+    const target = e.target;
+
+    // Handle Edit Button Click
+    if (target.classList.contains("edit-button")) {
+      editDepartmentId.value = target.dataset.id;
+      editDepartmentName.value = target.dataset.name;
+      toggleEditPanel(true);
+      return;
+    }
+
+    // Handle Status Change Button Click
+    if (target.classList.contains("status-button")) {
+      const { id, status } = target.dataset;
+      const newStatus = status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+      const actionText = newStatus === "INACTIVE" ? "deactivate" : "activate";
+
+      if (!confirm(`Are you sure you want to ${actionText} this department?`))
+        return;
+
+      const res = await apiCall(`${API_BASE}/${id}/status`, "PATCH", {
+        status: newStatus,
+      });
+      if (res) {
+        alert(res.Message || "Department status updated successfully.");
+        loadDepartment();
+      }
+    }
+  });
+
+    // ADD DEPARTMENT
+  departmentForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const departmentName = document
+      .getElementById("departmentName")
+      .value.trim();
+    if (!departmentName) return;
+
+    const res = await apiCall(API_BASE, "POST", {
+      Department_name: departmentName,
+    });
+    if (res) {
+      alert(res.Message || "Department created successfully.");
+      departmentForm.reset();
+      loadDepartment();
+    }
+  });
+
+    // EDIT DEPARTMENT
+  editDepartmentForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = editDepartmentId.value;
+    const departmentName = editDepartmentName.value.trim();
+    if (!departmentName) return;
+
+    const res = await apiCall(`${API_BASE}/${id}`, "PUT", {
+      department_name: departmentName,
+    });
+    if (res) {
+      alert(res.Message || "Department updated successfully.");
+      toggleEditPanel(false);
+      loadDepartment();
+    }
+  });
+
+  // Initial Data Fetch
+  loadDepartment();
 }
