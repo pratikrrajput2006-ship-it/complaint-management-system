@@ -216,55 +216,70 @@ async function updateAdminProfile(req, res) {
   }
 }
 async function verifyStaffForHA(req, res) {
-  let connection;
+  const { staff_id } = req.params;
 
   try {
-    connection = await pool.getConnection();
+    if (!staff_id) {
+      return res.status(400).json({
+        Message: "Staff ID is required",
+      });
+    }
 
-    const check_id = req.params.staff_id;
-
-    const [rows] = await connection.query(
+    const [rows] = await pool.query(
       `SELECT
-          user.user_id,
-          user.name,
-          user.status,
-          staff.employee_no,
-          staff.designation,
-          staff.ha_status,
-          staff.department_id,
-          department.department_name
-       FROM user
-       JOIN staff
-          ON user.user_id = staff.staff_id
-       JOIN department
-          ON staff.department_id = department.department_id
-       WHERE user.user_id = ?`,
-      [check_id],
+        staff.staff_id AS user_id,
+        user.name,
+        staff.employee_no,
+        staff.designation,
+
+        staff.department_id AS own_department_id,
+        own_department.department_name AS own_department_name,
+
+        staff.ha_status,
+
+        ha_history.department_id AS ha_department_id,
+        ha_department.department_name AS ha_department_name
+
+      FROM staff
+
+      JOIN user
+        ON staff.staff_id = user.user_id
+
+      JOIN department AS own_department
+        ON staff.department_id = own_department.department_id
+
+      LEFT JOIN ha_history
+        ON staff.staff_id = ha_history.staff_id
+       AND ha_history.status = 'ACTIVE'
+
+      LEFT JOIN department AS ha_department
+        ON ha_history.department_id = ha_department.department_id
+
+      WHERE staff.staff_id = ?`,
+      [staff_id],
     );
 
     if (rows.length === 0) {
       return res.status(404).json({
-        Message: "Staff does not exist",
+        Message: "Staff not found",
       });
     }
 
     return res.status(200).json({
-      Message: "Staff found successfully",
+      Message: "Staff verified successfully",
       Staff: rows[0],
     });
   } catch (error) {
-    console.error("Failed to fetch Staff data:", error.message);
+    console.error(
+      "Failed to verify Staff:",
+      error.message
+    );
 
     return res.status(500).json({
-      Message: "Failed to fetch Staff data",
+      Message: "Failed to verify Staff",
     });
-  } finally {
-    if (connection) {
-      connection.release();
-    }
   }
 }
-
 async function assignHA(req, res) {
   const { staff_id, department_id, remark } = req.body;
 
