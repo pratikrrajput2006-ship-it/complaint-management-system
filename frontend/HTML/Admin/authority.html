@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Authority Management - CMS</title>
+
+    <link rel="stylesheet" href="../../css/Admin/authority.css" />
+  </head>
+
+  <body>
+    <!-- HEADER -->
+    <header class="dashboard-header">
+      <div class="logo-area">
+        <h1>CMS</h1>
+        <span>Complaint Management System</span>
+      </div>
+
+      <div class="admin-area">
+        <span id="adminName"></span>
+
+        <button id="logoutButton">Logout</button>
+      </div>
+    </header>
+
+    <!-- DASHBOARD LAYOUT -->
+    <div class="dashboard-layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-link"> Dashboard </a>
+
+          <a href="departments.html" class="nav-link"> Departments </a>
+
+          <a href="authority.html" class="nav-link active"> Authority </a>
+
+          <a href="#" class="nav-link"> Categories </a>
+
+          <a href="#" class="nav-link"> Complaints </a>
+
+          <a href="#" class="nav-link"> Feedback </a>
+        </nav>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main class="main-content">
+        <!-- PAGE TITLE -->
+        <section class="welcome-section">
+          <h2>Authority Management</h2>
+
+          <p>
+            Verify Staff, assign Higher Authority responsibility, remove
+            assignments and view authority history.
+          </p>
+        </section>
+
+        <!-- STAFF VERIFICATION -->
+        <section class="authority-section">
+          <h3>Verify Staff</h3>
+
+          <form id="staffVerifyForm">
+            <div class="form-group">
+              <label for="staffId"> Staff ID </label>
+
+              <input
+                type="text"
+                id="staffId"
+                name="staffId"
+                placeholder="Enter Staff ID"
+                required
+              />
+            </div>
+
+            <button type="submit" class="primary-button">Verify Staff</button>
+          </form>
+        </section>
+
+        <!-- STAFF DETAILS -->
+        <section class="authority-section" id="staffDetailsSection" hidden>
+          <div class="staff-card-header">
+            <div>
+              <h3>Staff Details</h3>
+              <p>Verified staff identity and current authority status.</p>
+            </div>
+          </div>
+
+          <div id="staffDetails">
+            <!-- Staff identity card will be loaded here -->
+          </div>
+        </section>
+
+        <!-- HA ACTIONS -->
+        <section class="authority-section" id="haActionsSection" hidden>
+          <h3>Higher Authority</h3>
+
+          <div class="ha-actions">
+            <button type="button" id="assignHAButton" class="primary-button">
+              Assign HA
+            </button>
+
+            <button type="button" id="removeHAButton" class="secondary-button">
+              Remove HA
+            </button>
+
+            <button type="button" id="historyHAButton" class="secondary-button">
+              View HA History
+            </button>
+          </div>
+        </section>
+        <section class="authority-section" id="assignHASection" hidden>
+          <h3>Assign Higher Authority</h3>
+
+          <div class="form-group">
+            <label for="haDepartment">Responsible Department</label>
+
+            <select id="haDepartment">
+              <option value="" selected disabled>Select Department</option>
+            </select>
+            <div class="form-group">
+              <label for="haRemark">Remark</label>
+              <textarea
+                id="haRemark"
+                rows="3"
+                placeholder="Enter remark"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="ha-actions">
+            <button
+              type="button"
+              id="confirmAssignHAButton"
+              class="primary-button"
+            >
+              Assign HA
+            </button>
+
+            <button
+              type="button"
+              id="cancelAssignHAButton"
+              class="secondary-button"
+            >
+              Cancel
+            </button>
+          </div>
+        </section>
+        <!-- HA HISTORY -->
+        <section class="authority-section" id="haHistorySection" hidden>
+          <h3>HA History</h3>
+
+          <div class="authority-table-wrapper">
+            <table class="authority-table">
+              <thead>
+                <tr>
+                  <th>Department</th>
+                  <th>Assigned By</th>
+                  <th>Assigned At</th>
+                  <th>Ended At</th>
+                  <th>Status</th>
+                  <th>Remark</th>
+                </tr>
+              </thead>
+
+              <tbody id="haHistoryTableBody">
+                <!-- History will be loaded here -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="../../JS/Admin/authority.js"></script>
+  </body>
+</html>
