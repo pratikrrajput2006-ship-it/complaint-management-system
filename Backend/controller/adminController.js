@@ -270,10 +270,7 @@ async function verifyStaffForHA(req, res) {
       Staff: rows[0],
     });
   } catch (error) {
-    console.error(
-      "Failed to verify Staff:",
-      error.message
-    );
+    console.error("Failed to verify Staff:", error.message);
 
     return res.status(500).json({
       Message: "Failed to verify Staff",
@@ -639,14 +636,13 @@ async function getDepartments(req, res) {
           status,
           created_at
        FROM department
-       ORDER BY department_id`
+       ORDER BY department_id`,
     );
 
     return res.status(200).json({
       Message: "Departments fetched successfully",
       Departments: rows,
     });
-
   } catch (error) {
     console.error("Failed to fetch departments:", error.message);
 
@@ -691,7 +687,7 @@ async function updateDepartment(req, res) {
       `SELECT department_id
        FROM department
        WHERE department_id = ?`,
-      [department_id]
+      [department_id],
     );
 
     if (departmentRows.length === 0) {
@@ -706,7 +702,7 @@ async function updateDepartment(req, res) {
        FROM department
        WHERE department_name = ?
        AND department_id <> ?`,
-      [departmentName, department_id]
+      [departmentName, department_id],
     );
 
     if (duplicateRows.length > 0) {
@@ -720,7 +716,7 @@ async function updateDepartment(req, res) {
       `UPDATE department
        SET department_name = ?
        WHERE department_id = ?`,
-      [departmentName, department_id]
+      [departmentName, department_id],
     );
 
     return res.status(200).json({
@@ -730,7 +726,6 @@ async function updateDepartment(req, res) {
         department_name: departmentName,
       },
     });
-
   } catch (error) {
     console.error("Failed to update department:", error.message);
 
@@ -778,7 +773,7 @@ async function updateDepartmentStatus(req, res) {
        FROM department
        WHERE department_id = ?
        FOR UPDATE`,
-      [department_id]
+      [department_id],
     );
 
     if (departmentRows.length === 0) {
@@ -808,7 +803,7 @@ async function updateDepartmentStatus(req, res) {
          WHERE department_id = ?
          AND status = 'ACTIVE'
          LIMIT 1`,
-        [department_id]
+        [department_id],
       );
 
       if (haRows.length > 0) {
@@ -826,7 +821,7 @@ async function updateDepartmentStatus(req, res) {
       `UPDATE department
        SET status = ?
        WHERE department_id = ?`,
-      [newStatus, department_id]
+      [newStatus, department_id],
     );
 
     await connection.commit();
@@ -839,12 +834,8 @@ async function updateDepartmentStatus(req, res) {
         status: newStatus,
       },
     });
-
   } catch (error) {
-    console.error(
-      "Failed to update department status:",
-      error.message
-    );
+    console.error("Failed to update department status:", error.message);
 
     if (connection) {
       await connection.rollback();
@@ -853,13 +844,171 @@ async function updateDepartmentStatus(req, res) {
     return res.status(500).json({
       Message: "Failed to update department status",
     });
-
   } finally {
     if (connection) {
       connection.release();
     }
   }
 }
+
+async function createCategory(req, res) {
+  const { category_name, department_id } = req.body;
+  if (!category_name || !department_id) {
+    return res.status(400).json({
+      Message: "Fill Category and select Department.",
+    });
+  }
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+    const [rows] = await connection.query(
+      `SELECT
+       next_number
+       FROM id_sequence
+       WHERE role=?
+       FOR UPDATE
+       `,
+      ["CATEGORY"],
+    );
+    if (rows.length === 0) {
+      throw new Error("CATEGORY sequence not found");
+    }
+    const number = rows[0].next_number;
+
+    const category_id_create = `CAT${String(number).padStart(3, 0)}`;
+    await connection.query(
+      "UPDATE id_sequence SET next_number = next_number + 1 WHERE role = ?",
+      ["CATEGORY"],
+    );
+    const [department] = await connection.query(
+      `SELECT department_id FROM department WHERE department_id=? AND status="ACTIVE"`,
+      [department_id],
+    );
+    if (department.length === 0) {
+      await connection.rollback();
+      connection.release();
+      return res.status(400).json({
+        Message: "Invalid or inactive Department",
+      });
+    }
+    await connection.query(
+      `INSERT INTO category (category_id, category_name,department_id) VALUES(?,?,?)
+      `,
+      [category_id_create, category_name, department_id],
+    );
+    await connection.commit();
+    connection.release();
+    return res.status(201).json({
+      Message: "Category created successfully",
+      Category: {
+        category_id: category_id_create,
+        category_name,
+        department_id,
+      },
+    });
+  } catch (error) {
+    if (connection) await connection.rollback();
+    if (connection) connection.release();
+
+    console.error("Failed to create category:", error.message);
+
+    return res.status(500).json({
+      Message: "Failed to create category",
+    });
+  }
+}
+// async function updateDepartmentStatus(req, res) {
+//   const { department_id } = req.params;
+//   const { status } = req.body;
+
+//   if (!department_id || !status) {
+//     return res.status(400).json({
+//       Message: "Department ID and status are required.",
+//     });
+//   }
+
+//   if (!["ACTIVE", "INACTIVE"].includes(status)) {
+//     return res.status(400).json({
+//       Message: "Invalid status.",
+//     });
+//   }
+
+//   let connection;
+
+//   try {
+//     connection = await pool.getConnection();
+//     await connection.beginTransaction();
+
+//     const [department] = await connection.query(
+//       `SELECT department_id, status
+//        FROM department
+//        WHERE department_id = ?
+//        FOR UPDATE`,
+//       [department_id],
+//     );
+
+//     if (department.length === 0) {
+//       await connection.rollback();
+//       connection.release();
+
+//       return res.status(404).json({
+//         Message: "Department not found.",
+//       });
+//     }
+
+//     if (status === "INACTIVE") {
+//       await connection.query(
+//         `UPDATE staff s
+//          JOIN ha_history h
+//            ON s.staff_id = h.staff_id
+//          SET s.ha_status = 'NONE'
+//          WHERE h.department_id = ?
+//          AND h.status = 'ACTIVE'`,
+//         [department_id],
+//       );
+
+//       await connection.query(
+//         `UPDATE ha_history
+//          SET status = 'INACTIVE',
+//              ended_at = NOW()
+//          WHERE department_id = ?
+//          AND status = 'ACTIVE'`,
+//         [department_id],
+//       );
+
+//       await connection.query(
+//         `UPDATE category
+//          SET status = 'INACTIVE'
+//          WHERE department_id = ?`,
+//         [department_id],
+//       );
+//     }
+
+//     await connection.query(
+//       `UPDATE department
+//        SET status = ?
+//        WHERE department_id = ?`,
+//       [status, department_id],
+//     );
+
+//     await connection.commit();
+//     connection.release();
+
+//     return res.status(200).json({
+//       Message: `Department ${status.toLowerCase()} successfully.`,
+//     });
+//   } catch (error) {
+//     if (connection) await connection.rollback();
+//     if (connection) connection.release();
+
+//     console.error("Failed to update Department status:", error.message);
+
+//     return res.status(500).json({
+//       Message: "Failed to update Department status.",
+//     });
+//   }
+// }
 module.exports = {
   createAdmin,
   getAdminProfile,
@@ -871,5 +1020,6 @@ module.exports = {
   createDepartment,
   getDepartments,
   updateDepartment,
-  updateDepartmentStatus
+  updateDepartmentStatus,
+  createCategory,
 };
