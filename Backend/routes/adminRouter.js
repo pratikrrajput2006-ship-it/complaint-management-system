@@ -10,7 +10,8 @@ const {
   createDepartment,
   getDepartments,
   updateDepartment,
-  updateDepartmentStatus
+  updateDepartmentStatus,
+  createCategory
 } = require("../controller/adminController");
 const { authMiddleware } = require("../middleware/authmiddleware");
 const { rolemiddleware } = require("../middleware/rolemiddleware");
@@ -77,5 +78,10 @@ router.patch(
   authMiddleware,
   rolemiddleware("Admin"),
   updateDepartmentStatus
+);
+router.post(
+  "/categories/create",
+  authMiddleware,rolemiddleware("Admin"),
+  createCategory
 );
 module.exports = router;
