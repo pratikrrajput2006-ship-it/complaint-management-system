@@ -96,8 +96,7 @@ CREATE TABLE ha_history (
 CREATE TABLE category (
     category_id VARCHAR(10) PRIMARY KEY,
     category_name VARCHAR(100) NOT NULL UNIQUE,
-    routing_type VARCHAR(30) NOT NULL,
-    department_id VARCHAR(10),
+    department_id VARCHAR(10) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
