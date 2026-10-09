@@ -933,6 +933,128 @@ async function createCategory(req, res) {
   }
 }
 
+async function updateCategoryStatus(req, res) {
+  const { category_id } = req.params;
+  const { status } = req.body || {};
+
+  // 1. Validate Category ID
+  if (!category_id) {
+    return res.status(400).json({
+      Message: "Category ID is required",
+    });
+  }
+
+  // 2. Validate status
+  if (typeof status !== "string" || !status.trim()) {
+    return res.status(400).json({
+      Message: "Status is required",
+    });
+  }
+
+  const newStatus = status.trim().toUpperCase();
+
+  if (!["ACTIVE", "INACTIVE"].includes(newStatus)) {
+    return res.status(400).json({
+      Message: "Status must be ACTIVE or INACTIVE",
+    });
+  }
+
+  let connection;
+
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    // 3. Find Category and its Department status
+    const [categoryRows] = await connection.query(
+      `SELECT
+          c.category_id,
+          c.category_name,
+          c.department_id,
+          c.status,
+          d.status AS department_status
+       FROM category c
+       JOIN department d
+         ON c.department_id = d.department_id
+       WHERE c.category_id = ?
+       FOR UPDATE`,
+      [category_id],
+    );
+
+    // 4. Check whether Category exists
+    if (categoryRows.length === 0) {
+      await connection.rollback();
+
+      return res.status(404).json({
+        Message: "Category does not exist",
+      });
+    }
+
+    const category = categoryRows[0];
+
+    // 5. Prevent unnecessary status changes
+    if (category.status === newStatus) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        Message: `Category is already ${newStatus}`,
+      });
+    }
+
+    // 6. A Category can only be activated
+    // when its responsible Department is active.
+    if (newStatus === "ACTIVE" && category.department_status !== "ACTIVE") {
+      await connection.rollback();
+
+      return res.status(409).json({
+        Message: "Cannot activate Category while its Department is inactive",
+      });
+    }
+
+    // 7. Update Category status
+    await connection.query(
+      `UPDATE category
+       SET status = ?
+       WHERE category_id = ?`,
+      [newStatus, category_id],
+    );
+
+    // 8. Save changes
+    await connection.commit();
+
+    // 9. Send success response
+    return res.status(200).json({
+      Message: `Category ${newStatus.toLowerCase()} successfully`,
+      Category: {
+        category_id: category.category_id,
+        category_name: category.category_name,
+        department_id: category.department_id,
+        status: newStatus,
+      },
+    });
+  } catch (error) {
+    if (connection) {
+      try {
+        await connection.rollback();
+      } catch (rollbackError) {
+        console.error(
+          "Category transaction rollback failed:",
+          rollbackError.message,
+        );
+      }
+    }
+
+    console.error("Failed to update Category status:", error.message);
+
+    return res.status(500).json({
+      Message: "Failed to update Category status",
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+}
 module.exports = {
   createAdmin,
   getAdminProfile,
@@ -946,4 +1068,5 @@ module.exports = {
   updateDepartment,
   updateDepartmentStatus,
   createCategory,
+  updateCategoryStatus,
 };
