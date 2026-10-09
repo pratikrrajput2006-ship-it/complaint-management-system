@@ -744,7 +744,7 @@ async function updateDepartmentStatus(req, res) {
     });
   }
 
-  if (!status) {
+  if (!status || typeof status !== "string") {
     return res.status(400).json({
       Message: "Status is required",
     });
@@ -752,7 +752,7 @@ async function updateDepartmentStatus(req, res) {
 
   const newStatus = status.trim().toUpperCase();
 
-  if (newStatus !== "ACTIVE" && newStatus !== "INACTIVE") {
+  if (!["ACTIVE", "INACTIVE"].includes(newStatus)) {
     return res.status(400).json({
       Message: "Status must be ACTIVE or INACTIVE",
     });
@@ -764,12 +764,9 @@ async function updateDepartmentStatus(req, res) {
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
-    // Check department
+    // 1. Find and lock the Department
     const [departmentRows] = await connection.query(
-      `SELECT
-          department_id,
-          department_name,
-          status
+      `SELECT department_id, department_name, status
        FROM department
        WHERE department_id = ?
        FOR UPDATE`,
@@ -786,7 +783,7 @@ async function updateDepartmentStatus(req, res) {
 
     const currentStatus = departmentRows[0].status;
 
-    // Already in requested status
+    // 2. Prevent an unnecessary status change
     if (currentStatus === newStatus) {
       await connection.rollback();
 
@@ -795,28 +792,40 @@ async function updateDepartmentStatus(req, res) {
       });
     }
 
-    // Do not deactivate department while its HA is active
+    // 3. Apply cascade rules when deactivating
     if (newStatus === "INACTIVE") {
-      const [haRows] = await connection.query(
-        `SELECT history_id
-         FROM ha_history
-         WHERE department_id = ?
-         AND status = 'ACTIVE'
-         LIMIT 1`,
+      // Reset HA status for Staff with active HA
+      // assignments in this Department.
+      await connection.query(
+        `UPDATE staff s
+         JOIN ha_history h
+           ON s.staff_id = h.staff_id
+         SET s.ha_status = 'NONE'
+         WHERE h.department_id = ?
+           AND h.status = 'ACTIVE'`,
         [department_id],
       );
 
-      if (haRows.length > 0) {
-        await connection.rollback();
+      // Preserve history but end active HA assignments.
+      await connection.query(
+        `UPDATE ha_history
+         SET status = 'INACTIVE',
+             ended_at = CURRENT_TIMESTAMP
+         WHERE department_id = ?
+           AND status = 'ACTIVE'`,
+        [department_id],
+      );
 
-        return res.status(409).json({
-          Message:
-            "Department cannot be deactivated while it has an active Higher Authority",
-        });
-      }
+      // Deactivate Categories linked to this Department.
+      await connection.query(
+        `UPDATE category
+         SET status = 'INACTIVE'
+         WHERE department_id = ?`,
+        [department_id],
+      );
     }
 
-    // Update status
+    // 4. Update the Department itself
     await connection.query(
       `UPDATE department
        SET status = ?
@@ -824,6 +833,7 @@ async function updateDepartmentStatus(req, res) {
       [newStatus, department_id],
     );
 
+    // 5. Save all database changes together
     await connection.commit();
 
     return res.status(200).json({
@@ -835,11 +845,15 @@ async function updateDepartmentStatus(req, res) {
       },
     });
   } catch (error) {
-    console.error("Failed to update department status:", error.message);
-
     if (connection) {
-      await connection.rollback();
+      try {
+        await connection.rollback();
+      } catch (rollbackError) {
+        console.error("Transaction rollback failed:", rollbackError.message);
+      }
     }
+
+    console.error("Failed to update department status:", error.message);
 
     return res.status(500).json({
       Message: "Failed to update department status",
@@ -918,97 +932,7 @@ async function createCategory(req, res) {
     });
   }
 }
-// async function updateDepartmentStatus(req, res) {
-//   const { department_id } = req.params;
-//   const { status } = req.body;
 
-//   if (!department_id || !status) {
-//     return res.status(400).json({
-//       Message: "Department ID and status are required.",
-//     });
-//   }
-
-//   if (!["ACTIVE", "INACTIVE"].includes(status)) {
-//     return res.status(400).json({
-//       Message: "Invalid status.",
-//     });
-//   }
-
-//   let connection;
-
-//   try {
-//     connection = await pool.getConnection();
-//     await connection.beginTransaction();
-
-//     const [department] = await connection.query(
-//       `SELECT department_id, status
-//        FROM department
-//        WHERE department_id = ?
-//        FOR UPDATE`,
-//       [department_id],
-//     );
-
-//     if (department.length === 0) {
-//       await connection.rollback();
-//       connection.release();
-
-//       return res.status(404).json({
-//         Message: "Department not found.",
-//       });
-//     }
-
-//     if (status === "INACTIVE") {
-//       await connection.query(
-//         `UPDATE staff s
-//          JOIN ha_history h
-//            ON s.staff_id = h.staff_id
-//          SET s.ha_status = 'NONE'
-//          WHERE h.department_id = ?
-//          AND h.status = 'ACTIVE'`,
-//         [department_id],
-//       );
-
-//       await connection.query(
-//         `UPDATE ha_history
-//          SET status = 'INACTIVE',
-//              ended_at = NOW()
-//          WHERE department_id = ?
-//          AND status = 'ACTIVE'`,
-//         [department_id],
-//       );
-
-//       await connection.query(
-//         `UPDATE category
-//          SET status = 'INACTIVE'
-//          WHERE department_id = ?`,
-//         [department_id],
-//       );
-//     }
-
-//     await connection.query(
-//       `UPDATE department
-//        SET status = ?
-//        WHERE department_id = ?`,
-//       [status, department_id],
-//     );
-
-//     await connection.commit();
-//     connection.release();
-
-//     return res.status(200).json({
-//       Message: `Department ${status.toLowerCase()} successfully.`,
-//     });
-//   } catch (error) {
-//     if (connection) await connection.rollback();
-//     if (connection) connection.release();
-
-//     console.error("Failed to update Department status:", error.message);
-
-//     return res.status(500).json({
-//       Message: "Failed to update Department status.",
-//     });
-//   }
-// }
 module.exports = {
   createAdmin,
   getAdminProfile,
