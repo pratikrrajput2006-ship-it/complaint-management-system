@@ -1055,6 +1055,208 @@ async function updateCategoryStatus(req, res) {
     }
   }
 }
+async function getActiveCategories(req, res) {
+  try {
+    const [rows] = await pool.query(
+      `SELECT
+          c.category_id,
+          c.category_name,
+          c.department_id,
+          d.department_name
+       FROM category c
+       JOIN department d
+         ON c.department_id = d.department_id
+       WHERE c.status = 'ACTIVE'
+         AND d.status = 'ACTIVE'
+       ORDER BY c.category_name ASC`,
+    );
+
+    return res.status(200).json({
+      Message: "Active categories fetched successfully",
+      Categories: rows,
+    });
+  } catch (error) {
+    console.error("Failed to fetch active categories:", error.message);
+
+    return res.status(500).json({
+      Message: "Failed to fetch active categories",
+    });
+  }
+}
+async function getAllCategories(req, res) {
+  try {
+    const [rows] = await pool.query(
+      `SELECT
+          c.category_id,
+          c.category_name,
+          c.department_id,
+          d.department_name,
+          c.status,
+          d.status AS department_status,
+          c.created_at
+       FROM category c
+       JOIN department d
+         ON c.department_id = d.department_id
+       ORDER BY c.category_id`,
+    );
+
+    return res.status(200).json({
+      Message: "Categories fetched successfully",
+      Categories: rows,
+    });
+  } catch (error) {
+    console.error("Failed to fetch Categories:", error.message);
+
+    return res.status(500).json({
+      Message: "Failed to fetch Categories",
+    });
+  }
+}
+async function updateCategory(req, res) {
+  const { category_id } = req.params;
+  const { category_name, department_id } = req.body || {};
+
+  // 1. Validate Category ID
+  if (!category_id) {
+    return res.status(400).json({
+      Message: "Category ID is required",
+    });
+  }
+
+  // 2. Validate Category name
+  if (typeof category_name !== "string" || !category_name.trim()) {
+    return res.status(400).json({
+      Message: "Category name is required",
+    });
+  }
+
+  const categoryName = category_name.trim();
+
+  if (categoryName.length > 100) {
+    return res.status(400).json({
+      Message: "Category name must not exceed 100 characters",
+    });
+  }
+
+  // 3. Validate Department ID
+  if (typeof department_id !== "string" || !department_id.trim()) {
+    return res.status(400).json({
+      Message: "Department ID is required",
+    });
+  }
+
+  const departmentId = department_id.trim();
+  let connection;
+
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    // 4. Check Category exists and lock its row
+    const [categoryRows] = await connection.query(
+      `SELECT category_id, category_name, department_id, status
+       FROM category
+       WHERE category_id = ?
+       FOR UPDATE`,
+      [category_id],
+    );
+
+    if (categoryRows.length === 0) {
+      await connection.rollback();
+
+      return res.status(404).json({
+        Message: "Category does not exist",
+      });
+    }
+
+    // 5. Check the new Department exists and is active
+    const [departmentRows] = await connection.query(
+      `SELECT department_id, department_name, status
+       FROM department
+       WHERE department_id = ?
+       FOR UPDATE`,
+      [departmentId],
+    );
+
+    if (
+      departmentRows.length === 0 ||
+      departmentRows[0].status !== "ACTIVE"
+    ) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        Message: "Cannot assign Category to a missing or inactive Department",
+      });
+    }
+
+    // 6. Prevent duplicate Category names
+    const [duplicateRows] = await connection.query(
+      `SELECT category_id
+       FROM category
+       WHERE category_name = ?
+         AND category_id <> ?`,
+      [categoryName, category_id],
+    );
+
+    if (duplicateRows.length > 0) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        Message: "Category name already exists",
+      });
+    }
+
+    // 7. Update Category details without changing its status
+    await connection.query(
+      `UPDATE category
+       SET category_name = ?,
+           department_id = ?
+       WHERE category_id = ?`,
+      [categoryName, departmentId, category_id],
+    );
+
+    await connection.commit();
+
+    // 8. Return updated Category
+    return res.status(200).json({
+      Message: "Category updated successfully",
+      Category: {
+        category_id,
+        category_name: categoryName,
+        department_id: departmentId,
+        department_name: departmentRows[0].department_name,
+        status: categoryRows[0].status,
+      },
+    });
+  } catch (error) {
+    if (connection) {
+      try {
+        await connection.rollback();
+      } catch (rollbackError) {
+        console.error(
+          "Category rollback failed:",
+          rollbackError.message,
+        );
+      }
+    }
+
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({
+        Message: "Category name already exists",
+      });
+    }
+
+    console.error("Failed to update Category:", error.message);
+
+    return res.status(500).json({
+      Message: "Failed to update Category",
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+}
 module.exports = {
   createAdmin,
   getAdminProfile,
@@ -1069,4 +1271,7 @@ module.exports = {
   updateDepartmentStatus,
   createCategory,
   updateCategoryStatus,
+  getActiveCategories,
+  getAllCategories,
+  updateCategory
 };
