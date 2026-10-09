@@ -1,8 +1,14 @@
 const express = require("express");
 
-const { createStaff,getStaffProfile,updateStaffProfile } = require("../controller/staffController");
+const {
+  createStaff,
+  getStaffProfile,
+  updateStaffProfile,
+} = require("../controller/staffController");
 const { authMiddleware } = require("../middleware/authmiddleware");
 const { rolemiddleware } = require("../middleware/rolemiddleware");
+const { getActiveCategories } = require("../controller/adminController");
+
 const router = express.Router();
 
 router.post("/create", createStaff);
@@ -12,9 +18,27 @@ router.get("/dashbord", authMiddleware, rolemiddleware("Staff"), (req, res) => {
     Message: "Dashboard access granted",
     user: req.user,
   });
-  }
+});
+
+router.get(
+  "/profile",
+  authMiddleware,
+  rolemiddleware("Staff"),
+  getStaffProfile,
+);
+router.put(
+  "/profile",
+  authMiddleware,
+  rolemiddleware("Staff"),
+  updateStaffProfile,
 );
 
-router.get("/profile", authMiddleware, rolemiddleware("Staff"),getStaffProfile);
-router.put('/profile',authMiddleware,rolemiddleware("Staff"),updateStaffProfile);
+
+//admin data gathered
+router.get(
+  "/categories/active",
+  authMiddleware,
+  rolemiddleware("Staff"),
+  getActiveCategories,
+);
 module.exports = router;
