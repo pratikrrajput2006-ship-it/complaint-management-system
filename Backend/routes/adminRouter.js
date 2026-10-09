@@ -11,7 +11,10 @@ const {
   getDepartments,
   updateDepartment,
   updateDepartmentStatus,
-  createCategory
+  createCategory,
+  updateCategoryStatus,
+  getAllCategories,
+  updateCategory
 } = require("../controller/adminController");
 const { authMiddleware } = require("../middleware/authmiddleware");
 const { rolemiddleware } = require("../middleware/rolemiddleware");
@@ -83,5 +86,23 @@ router.post(
   "/categories/create",
   authMiddleware,rolemiddleware("Admin"),
   createCategory
+);
+router.patch(
+  "/categories/:category_id/status",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  updateCategoryStatus,
+);
+router.get(
+  "/categories",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  getAllCategories,
+);
+router.put(
+  "/categories/:category_id",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  updateCategory,
 );
 module.exports = router;
