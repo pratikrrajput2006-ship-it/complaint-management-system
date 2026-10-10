@@ -93,16 +93,42 @@ if (isAdmin) {
     return `<div class="info-item"><span class="info-label">${label}</span><span class="info-value">${value}</span></div>`;
   }
 
+  function assignBox(title, hint, buttonText) {
+    return `
+        <div class="action-box">
+          <h4>${title}</h4>
+          <p class="hint">${hint}</p>
+          <select id="reassignStaff"><option value="">Loading...</option></select>
+          <input type="text" id="reassignRemark" placeholder="Remark (optional)" />
+          <button class="btn btn-primary" id="reassignBtn" type="button">${buttonText}</button>
+        </div>`;
+  }
+
+  function startReviewBox(hint) {
+    return `
+        <div class="action-box">
+          <h4>Review It Yourself</h4>
+          <p class="hint">${hint}</p>
+          <button class="btn btn-primary" id="startReviewBtn" type="button">Start Review</button>
+        </div>`;
+  }
+
   function actionsHtml(complaint) {
     const status = complaint.status;
 
-    if (status === "ESCALATED_TO_ADMIN" || status === "PENDING_ADMIN_REVIEW") {
-      return `
-        <div class="action-box">
-          <h4>Admin Action</h4>
-          <p class="hint">Take this complaint for review before you decide.</p>
-          <button class="btn btn-primary" id="startReviewBtn" type="button">Start Review</button>
-        </div>`;
+    if (status === "ESCALATED_TO_ADMIN") {
+      return startReviewBox("Take this escalated complaint for review before you decide.");
+    }
+
+    // Admin queue: no HA, HA removed, or reopened by the user
+    if (status === "PENDING_ADMIN_REVIEW") {
+      return (
+        assignBox(
+          "Assign Higher Authority",
+          "Send this complaint to an active HA of its department.",
+          "Assign to HA",
+        ) + startReviewBox("Or take it for review and decide it yourself.")
+      );
     }
 
     if (status === "UNDER_ADMIN_REVIEW") {
@@ -121,14 +147,11 @@ if (isAdmin) {
     }
 
     if (status === "PENDING_HA" || status === "UNDER_HA_REVIEW") {
-      return `
-        <div class="action-box">
-          <h4>Reassign Higher Authority</h4>
-          <p class="hint">Choose another active HA of this department.</p>
-          <select id="reassignStaff"><option value="">Loading...</option></select>
-          <input type="text" id="reassignRemark" placeholder="Remark (optional)" />
-          <button class="btn btn-primary" id="reassignBtn" type="button">Reassign</button>
-        </div>`;
+      return assignBox(
+        "Reassign Higher Authority",
+        "Choose another active HA of this department.",
+        "Reassign",
+      );
     }
 
     return `<p class="hint">This complaint is closed. No action needed.</p>`;
