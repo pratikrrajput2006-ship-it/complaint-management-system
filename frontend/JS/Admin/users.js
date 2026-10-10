@@ -19,12 +19,41 @@ if (isAdmin) {
       : `<span class="badge b-gray">None</span>`;
   }
 
+  function displayName(item) {
+    const suffix = item.role === "Admin" ? ' <span class="cell-muted">(Admin)</span>' : "";
+    return `${escapeHtml(item.name)}${suffix}`;
+  }
+
   function renderSummary() {
     const count = (name) => users.filter((item) => item.role === name).length;
     $("totalUsers").textContent = users.length;
     $("totalStudents").textContent = count("Student");
     $("totalStaff").textContent = count("Staff");
     $("totalAdmins").textContent = count("Admin");
+  }
+
+  function actionsCell(item) {
+    if (item.role !== "Staff") return "";
+
+    const manageHaLink = `<a class="link" href="authority.html?staff_id=${encodeURIComponent(item.user_id)}">Manage HA</a>`;
+
+    // Only the initial System Manager (ADM001) may promote Staff.
+    if (!isSystemManager) {
+      return `<div class="row-actions">${manageHaLink}</div>`;
+    }
+
+    let blockedReason = "";
+    if (item.status !== "ACTIVE") blockedReason = "Account must be active";
+    else if (item.ha_status === "ACTIVE") blockedReason = "Active HA: remove HA duties first";
+
+    return `
+      <div class="row-actions">
+        ${manageHaLink}
+        <button type="button" class="btn btn-secondary btn-sm" data-promote="${escapeHtml(item.user_id)}"
+          ${blockedReason ? `disabled title="${escapeHtml(blockedReason)}"` : `title="Give this Staff member Admin access"`}>
+          Promote to Admin
+        </button>
+      </div>`;
   }
 
   function renderTable() {
@@ -53,14 +82,14 @@ if (isAdmin) {
         (item) => `
         <tr>
           <td><strong>${escapeHtml(item.user_id)}</strong></td>
-          <td>${escapeHtml(item.name)}</td>
+          <td>${displayName(item)}</td>
           <td class="cell-muted">${escapeHtml(item.email)}</td>
           <td>${roleBadge(item.role)}</td>
           <td>${escapeHtml(item.reference_no) || "-"}</td>
           <td>${escapeHtml(item.department_name) || "-"}</td>
           <td>${haCell(item)}</td>
           <td>${activeBadge(item.status)}</td>
-          <td>${item.role === "Staff" ? `<a class="link" href="authority.html?staff_id=${encodeURIComponent(item.user_id)}">Manage HA</a>` : ""}</td>
+          <td>${actionsCell(item)}</td>
         </tr>`,
       )
       .join("");
@@ -72,6 +101,30 @@ if (isAdmin) {
     renderSummary();
     renderTable();
   }
+
+  // Promote Staff to Admin
+  tableBody.addEventListener("click", async (event) => {
+    const button = event.target.closest("button[data-promote]");
+    if (!button) return;
+
+    const staff = users.find((item) => item.user_id === button.dataset.promote);
+    if (!staff || !isSystemManager) return;
+
+    const message =
+      `Promote ${staff.name} (${staff.user_id}) to Admin?\n\n` +
+      `They will get full Admin access and must log in again. ` +
+      `Only active ordinary Staff without active HA duties or active complaint assignments can be promoted.`;
+    if (!confirm(message)) return;
+
+    button.disabled = true;
+    const data = await apiCall(`/admin/users/${staff.user_id}/promote`, "POST");
+    if (data) {
+      showToast(data.Message);
+      loadUsers();
+    } else {
+      button.disabled = false;
+    }
+  });
 
   tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
