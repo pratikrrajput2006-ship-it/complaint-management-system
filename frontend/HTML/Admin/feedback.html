@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Feedback Management - CMS</title>
+    <link rel="stylesheet" href="../../css/Admin/admin-common.css" />
+  </head>
+
+  <body>
+    <header class="dashboard-header">
+      <div class="logo-area">
+        <h1>CMS</h1>
+        <span>Complaint Management System</span>
+      </div>
+
+      <div class="admin-area">
+        <span id="adminName"></span>
+        <button id="logoutButton" type="button">Logout</button>
+      </div>
+    </header>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-link">Dashboard</a>
+          <a href="departments.html" class="nav-link">Departments</a>
+          <a href="authority.html" class="nav-link">Higher Authority</a>
+          <a href="categories.html" class="nav-link">Categories</a>
+          <a href="complaints.html" class="nav-link">Complaints</a>
+          <a href="feedback.html" class="nav-link active">Feedback</a>
+          <a href="users.html" class="nav-link">Users</a>
+          <a href="notifications.html" class="nav-link">Notifications <span class="nav-badge" id="notifBadge" hidden></span></a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <section class="welcome-section">
+          <h2>Feedback Management</h2>
+          <p>See how students and staff rated the complaint resolutions.</p>
+        </section>
+
+        <section class="dashboard-summary">
+          <div class="summary-card">
+            <h3>Total Feedback</h3>
+            <p id="totalFeedback">--</p>
+          </div>
+          <div class="summary-card">
+            <h3>Average Rating</h3>
+            <p id="averageRating">--</p>
+          </div>
+          <div class="summary-card">
+            <h3>Positive (4-5 stars)</h3>
+            <p id="positiveFeedback">--</p>
+          </div>
+          <div class="summary-card">
+            <h3>Low (1-2 stars)</h3>
+            <p id="lowFeedback">--</p>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="toolbar">
+            <div class="form-group">
+              <label for="ratingFilter">Rating</label>
+              <select id="ratingFilter">
+                <option value="">All Ratings</option>
+                <option value="5">5 stars</option>
+                <option value="4">4 stars</option>
+                <option value="3">3 stars</option>
+                <option value="2">2 stars</option>
+                <option value="1">1 star</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="departmentFilter">Department</label>
+              <select id="departmentFilter"><option value="">All Departments</option></select>
+            </div>
+            <div class="form-group">
+              <label for="searchInput">Search</label>
+              <input type="search" id="searchInput" placeholder="Complaint, user or comment" />
+            </div>
+          </div>
+          <p class="result-count" id="resultCount"></p>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr><th>Feedback ID</th><th>Complaint</th><th>Department</th><th>Given By</th><th>Rating</th><th>Comment</th><th>Date</th></tr>
+              </thead>
+              <tbody id="feedbackTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <script src="../../JS/Admin/admin-common.js"></script>
+    <script src="../../JS/Admin/admin-profile.js"></script>
+    <script src="../../JS/Admin/feedback.js"></script>
+  </body>
+</html>
