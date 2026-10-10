@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Category Management - CMS</title>
+    <link rel="stylesheet" href="../../css/Admin/admin-common.css" />
+  </head>
+
+  <body>
+    <header class="dashboard-header">
+      <div class="logo-area">
+        <h1>CMS</h1>
+        <span>Complaint Management System</span>
+      </div>
+
+      <div class="admin-area">
+        <span id="adminName"></span>
+        <button id="logoutButton" type="button">Logout</button>
+      </div>
+    </header>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-link">Dashboard</a>
+          <a href="departments.html" class="nav-link">Departments</a>
+          <a href="authority.html" class="nav-link">Higher Authority</a>
+          <a href="categories.html" class="nav-link active">Categories</a>
+          <a href="complaints.html" class="nav-link">Complaints</a>
+          <a href="feedback.html" class="nav-link">Feedback</a>
+          <a href="users.html" class="nav-link">Users</a>
+          <a href="notifications.html" class="nav-link">Notifications <span class="nav-badge" id="notifBadge" hidden></span></a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <section class="welcome-section">
+          <h2>Category Management</h2>
+          <p>Create categories and connect each one to its responsible department.</p>
+        </section>
+
+        <section class="card">
+          <h3>Add Category</h3>
+          <form id="categoryForm" class="toolbar" style="margin-bottom:0">
+            <div class="form-group">
+              <label for="categoryName">Category Name</label>
+              <input type="text" id="categoryName" placeholder="Enter category name" maxlength="100" required />
+            </div>
+            <div class="form-group">
+              <label for="categoryDepartment">Responsible Department</label>
+              <select id="categoryDepartment" required>
+                <option value="" selected disabled>Select Department</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Category</button>
+          </form>
+        </section>
+
+        <section class="card">
+          <h3>Categories</h3>
+          <div class="toolbar">
+            <div class="form-group">
+              <label for="searchInput">Search</label>
+              <input type="search" id="searchInput" placeholder="ID, name or department" />
+            </div>
+            <div class="form-group">
+              <label for="statusFilter">Status</label>
+              <select id="statusFilter">
+                <option value="">All</option>
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+              </select>
+            </div>
+          </div>
+          <p class="result-count" id="resultCount"></p>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr><th>Category ID</th><th>Category Name</th><th>Department</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="categoryTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <div class="overlay" id="overlay" hidden></div>
+    <aside class="side-panel" id="editPanel">
+      <div class="panel-header">
+        <h3>Edit Category</h3>
+        <button type="button" id="closeEditPanel" class="panel-close">&times;</button>
+      </div>
+      <div class="panel-body">
+        <form id="editCategoryForm">
+          <div class="form-group" style="margin-bottom:16px">
+            <label for="editCategoryId">Category ID</label>
+            <input type="text" id="editCategoryId" readonly />
+          </div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label for="editCategoryName">Category Name</label>
+            <input type="text" id="editCategoryName" maxlength="100" required />
+          </div>
+          <div class="form-group">
+            <label for="editCategoryDepartment">Responsible Department</label>
+            <select id="editCategoryDepartment" required>
+              <option value="" selected disabled>Select Department</option>
+            </select>
+          </div>
+          <div class="panel-actions">
+            <button type="button" id="cancelEditButton" class="btn btn-secondary">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </aside>
+
+    <script src="../../JS/Admin/admin-common.js"></script>
+    <script src="../../JS/Admin/admin-profile.js"></script>
+    <script src="../../JS/Admin/categories.js"></script>
+  </body>
+</html>
