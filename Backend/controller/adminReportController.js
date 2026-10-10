@@ -113,7 +113,9 @@ async function getActiveHAs(req, res) {
        JOIN user u ON s.staff_id = u.user_id
        JOIN department d ON h.department_id = d.department_id
        WHERE h.status = 'ACTIVE'
-       AND s.ha_status = 'ACTIVE'`;
+       AND s.ha_status = 'ACTIVE'
+       AND u.role = 'Staff'
+       AND u.status = 'ACTIVE'`;
     let values = [];
     if (department_id) {
       query += " AND h.department_id = ?";

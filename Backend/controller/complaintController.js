@@ -99,6 +99,25 @@ async function createComplaint(req, res) {
       department_id = user_rows[0].department_id;
     }
 
+    // Is there an active HA (other than the submitter) in this department?
+    const [ha_rows] = await connection.query(
+      `SELECT h.staff_id
+       FROM ha_history h
+       JOIN staff s ON h.staff_id = s.staff_id
+       WHERE h.department_id = ?
+       AND h.status = 'ACTIVE'
+       AND s.ha_status = 'ACTIVE'
+       AND h.staff_id <> ?`,
+      [department_id, user_id],
+    );
+    let status = "PENDING_HA";
+    let tracker_remark = "Complaint submitted";
+    if (ha_rows.length === 0) {
+      status = "PENDING_ADMIN_REVIEW";
+      tracker_remark =
+        "Complaint submitted. No active Higher Authority in the department, sent to Admin queue";
+    }
+
     const [rows] = await connection.query(
       `SELECT next_number
        FROM id_sequence
@@ -121,7 +140,6 @@ async function createComplaint(req, res) {
       ["COMPLAINT"],
     );
 
-    const status = "PENDING_HA";
     let final_category_id = null;
     if (complaint_type === "NORMAL") {
       final_category_id = category_id;
@@ -149,8 +167,8 @@ async function createComplaint(req, res) {
     await connection.query(
       `INSERT INTO complaint_tracker
        (complaint_id, previous_status, status, updated_by, action_type, remark)
-       VALUES (?, NULL, ?, ?, 'SUBMITTED', 'Complaint submitted')`,
-      [complaint_id, status, user_id],
+       VALUES (?, NULL, ?, ?, 'SUBMITTED', ?)`,
+      [complaint_id, status, user_id, tracker_remark],
     );
 
     await createNotification(
@@ -161,15 +179,25 @@ async function createComplaint(req, res) {
       `Your complaint ${complaint_id} was submitted successfully`,
       "COMPLAINT_SUBMITTED",
     );
-    await notifyHa(
-      connection,
-      department_id,
-      complaint_id,
-      "New complaint received",
-      `New complaint ${complaint_id} is waiting for your review`,
-      "NEW_COMPLAINT",
-      user_id,
-    );
+    if (status === "PENDING_HA") {
+      await notifyHa(
+        connection,
+        department_id,
+        complaint_id,
+        "New complaint received",
+        `New complaint ${complaint_id} is waiting for your review`,
+        "NEW_COMPLAINT",
+        user_id,
+      );
+    } else {
+      await notifyAllAdmins(
+        connection,
+        complaint_id,
+        "Complaint needs a Higher Authority",
+        `Complaint ${complaint_id} has no active Higher Authority in its department`,
+        "NEEDS_HA_ASSIGNMENT",
+      );
+    }
 
     await connection.commit();
     connection.release();

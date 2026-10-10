@@ -5,7 +5,7 @@ async function getAdminComplaints(req, res) {
   const { status } = req.query;
   try {
     let rows;
-    if (status) {
+    if (status && status !== "ALL") {
       [rows] = await pool.query(
         `SELECT
             c.complaint_id,
@@ -27,6 +27,27 @@ async function getAdminComplaints(req, res) {
          WHERE c.status = ?
          ORDER BY c.created_at ASC`,
         [status],
+      );
+    } else if (status === "ALL") {
+      [rows] = await pool.query(
+        `SELECT
+            c.complaint_id,
+            c.complaint_type,
+            c.subject,
+            c.priority,
+            c.status,
+            c.submitted_by,
+            u.name AS submitted_by_name,
+            c.department_id,
+            d.department_name,
+            cat.category_name,
+            c.created_at,
+            c.updated_at
+         FROM complaint c
+         JOIN user u ON c.submitted_by = u.user_id
+         JOIN department d ON c.department_id = d.department_id
+         LEFT JOIN category cat ON c.category_id = cat.category_id
+         ORDER BY c.created_at DESC`,
       );
     } else {
       [rows] = await pool.query(
@@ -396,11 +417,15 @@ async function reassignComplaint(req, res) {
       });
     }
     const status = complaint_rows[0].status;
-    if (status !== "PENDING_HA" && status !== "UNDER_HA_REVIEW") {
+    if (
+      status !== "PENDING_HA" &&
+      status !== "UNDER_HA_REVIEW" &&
+      status !== "PENDING_ADMIN_REVIEW"
+    ) {
       await connection.rollback();
       connection.release();
       return res.status(409).json({
-        Message: "Only PENDING_HA or UNDER_HA_REVIEW complaint can be reassigned",
+        Message: "Only PENDING_HA, UNDER_HA_REVIEW or PENDING_ADMIN_REVIEW complaint can be assigned to a Higher Authority",
       });
     }
     if (complaint_rows[0].submitted_by === staff_id) {
@@ -461,11 +486,21 @@ async function reassignComplaint(req, res) {
        VALUES (?, ?, ?, 'ADMIN_ACTION', ?)`,
       [complaint_id, staff_id, user_id, final_remark],
     );
+    // A complaint from the Admin queue goes back to the Higher Authority
+    let new_status = status;
+    if (status === "PENDING_ADMIN_REVIEW") {
+      new_status = "PENDING_HA";
+      await connection.query(
+        `UPDATE complaint SET status = 'PENDING_HA' WHERE complaint_id = ?`,
+        [complaint_id],
+      );
+    }
+
     await connection.query(
       `INSERT INTO complaint_tracker
        (complaint_id, previous_status, status, updated_by, action_type, remark)
        VALUES (?, ?, ?, ?, 'ADMIN_REASSIGNED', ?)`,
-      [complaint_id, status, status, user_id, final_remark],
+      [complaint_id, status, new_status, user_id, final_remark],
     );
 
     await createNotification(
@@ -476,6 +511,16 @@ async function reassignComplaint(req, res) {
       `Admin assigned complaint ${complaint_id} to you`,
       "ADMIN_ASSIGNED",
     );
+    if (status === "PENDING_ADMIN_REVIEW") {
+      await createNotification(
+        connection,
+        complaint_rows[0].submitted_by,
+        complaint_id,
+        "Higher Authority assigned",
+        `Your complaint ${complaint_id} was assigned to a Higher Authority`,
+        "ADMIN_ASSIGNED",
+      );
+    }
     if (old_assignment.length > 0) {
       await createNotification(
         connection,
@@ -496,7 +541,7 @@ async function reassignComplaint(req, res) {
         complaint_id,
         staff_id,
         assignment_source: "ADMIN_ACTION",
-        status,
+        status: new_status,
       },
     });
   } catch (error) {
