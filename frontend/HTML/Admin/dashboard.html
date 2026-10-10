@@ -3,10 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <title>CMS - Admin Dashboard</title>
-
-    <link rel="stylesheet" href="../../css/Admin/dashboard.css" />
+    <title>Admin Dashboard - CMS</title>
+    <link rel="stylesheet" href="../../css/Admin/admin-common.css" />
   </head>
 
   <body>
@@ -17,7 +15,7 @@
       </div>
 
       <div class="admin-area">
-        <span id="adminName">Admin</span>
+        <span id="adminName"></span>
         <button id="logoutButton" type="button">Logout</button>
       </div>
     </header>
@@ -25,69 +23,89 @@
     <div class="dashboard-layout">
       <aside class="sidebar">
         <nav class="sidebar-nav">
-          <a href="dashboard.html" class="nav-link active"> Dashboard </a>
-
-          <a href="departments.html" class="nav-link"> Departments </a>
-
-          <a href="authority.html" class="nav-link"> Higher Authority </a>
-
-          <a href="categories.html" class="nav-link"> Categories </a>
-
-          <a href="complaints.html" class="nav-link"> Complaints </a>
-
-          <a href="feedback.html" class="nav-link"> Feedback </a>
+          <a href="dashboard.html" class="nav-link active">Dashboard</a>
+          <a href="departments.html" class="nav-link">Departments</a>
+          <a href="authority.html" class="nav-link">Higher Authority</a>
+          <a href="categories.html" class="nav-link">Categories</a>
+          <a href="complaints.html" class="nav-link">Complaints</a>
+          <a href="feedback.html" class="nav-link">Feedback</a>
+          <a href="users.html" class="nav-link">Users</a>
+          <a href="notifications.html" class="nav-link">Notifications <span class="nav-badge" id="notifBadge" hidden></span></a>
         </nav>
       </aside>
 
       <main class="main-content">
         <section class="welcome-section">
           <h2>Admin Dashboard</h2>
-
           <p id="welcomeMessage">Welcome, Admin</p>
         </section>
+
+        <div class="alert-box" id="attentionBox" hidden>
+          <span id="attentionText"></span>
+          <a class="btn btn-primary btn-sm" href="complaints.html">Review Now</a>
+        </div>
 
         <section class="dashboard-summary">
           <div class="summary-card">
             <h3>Total Complaints</h3>
             <p id="totalComplaints">--</p>
           </div>
-
           <div class="summary-card">
             <h3>Pending Complaints</h3>
             <p id="pendingComplaints">--</p>
           </div>
-
           <div class="summary-card">
             <h3>Resolved Complaints</h3>
             <p id="resolvedComplaints">--</p>
           </div>
-
           <div class="summary-card">
-            <h3>Escalated Complaints</h3>
+            <h3>Awaiting Admin</h3>
             <p id="escalatedComplaints">--</p>
+          </div>
+        </section>
+
+        <section class="dashboard-summary">
+          <div class="summary-card">
+            <h3>Students</h3>
+            <p id="totalStudents">--</p>
+          </div>
+          <div class="summary-card">
+            <h3>Staff</h3>
+            <p id="totalStaff">--</p>
+          </div>
+          <div class="summary-card">
+            <h3>Higher Authorities</h3>
+            <p id="totalHA">--</p>
+          </div>
+          <div class="summary-card">
+            <h3>Average Feedback</h3>
+            <p id="avgFeedback">--</p>
           </div>
         </section>
 
         <section class="analytics-section">
           <div class="analytics-card">
             <h3>Complaints Overview</h3>
-            <div id="complaintsChart">Chart will be added later.</div>
+            <div id="statusBars"></div>
           </div>
 
           <div class="analytics-card">
             <h3>Complaints by Department</h3>
-            <div id="departmentChart">Chart will be added later.</div>
+            <div id="departmentBars"></div>
           </div>
         </section>
 
         <section class="recent-complaints">
           <h3>Recent Complaints</h3>
-
-          <div id="recentComplaints">No complaint data available yet.</div>
+          <div id="recentComplaints"><div class="empty">Loading...</div></div>
+          <p style="margin-top:16px"><a class="link" href="complaints.html?status=ALL">View all complaints &rarr;</a></p>
         </section>
+
       </main>
     </div>
 
+    <script src="../../JS/Admin/admin-common.js"></script>
+    <script src="../../JS/Admin/admin-profile.js"></script>
     <script src="../../JS/Admin/dashboard.js"></script>
   </body>
 </html>
