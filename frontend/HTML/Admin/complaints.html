@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Complaint Management - CMS</title>
+    <link rel="stylesheet" href="../../css/Admin/admin-common.css" />
+  </head>
+
+  <body>
+    <header class="dashboard-header">
+      <div class="logo-area">
+        <h1>CMS</h1>
+        <span>Complaint Management System</span>
+      </div>
+
+      <div class="admin-area">
+        <span id="adminName"></span>
+        <button id="logoutButton" type="button">Logout</button>
+      </div>
+    </header>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-link">Dashboard</a>
+          <a href="departments.html" class="nav-link">Departments</a>
+          <a href="authority.html" class="nav-link">Higher Authority</a>
+          <a href="categories.html" class="nav-link">Categories</a>
+          <a href="complaints.html" class="nav-link active">Complaints</a>
+          <a href="feedback.html" class="nav-link">Feedback</a>
+          <a href="users.html" class="nav-link">Users</a>
+          <a href="notifications.html" class="nav-link">Notifications <span class="nav-badge" id="notifBadge" hidden></span></a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <section class="welcome-section">
+          <h2>Complaint Management</h2>
+          <p>Review escalated and reopened complaints, reassign Higher Authority and monitor every complaint.</p>
+        </section>
+
+        <section class="card">
+          <div class="toolbar">
+            <div class="form-group">
+              <label for="statusFilter">Show</label>
+              <select id="statusFilter">
+                <option value="">Needs Admin Action</option>
+                <option value="ALL">All Complaints</option>
+                <option value="PENDING_HA">Pending HA</option>
+                <option value="UNDER_HA_REVIEW">Under HA Review</option>
+                <option value="RESOLVED_BY_HA">Resolved by HA</option>
+                <option value="ESCALATED_TO_ADMIN">Escalated to Admin</option>
+                <option value="PENDING_ADMIN_REVIEW">Reopened - Pending Admin</option>
+                <option value="UNDER_ADMIN_REVIEW">Under Admin Review</option>
+                <option value="RESOLVED_BY_ADMIN">Resolved by Admin</option>
+                <option value="REJECTED_BY_ADMIN">Rejected by Admin</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="departmentFilter">Department</label>
+              <select id="departmentFilter"><option value="">All Departments</option></select>
+            </div>
+            <div class="form-group">
+              <label for="searchInput">Search</label>
+              <input type="search" id="searchInput" placeholder="Complaint ID, subject or name" />
+            </div>
+          </div>
+          <p class="result-count" id="resultCount"></p>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr><th>ID</th><th>Subject</th><th>Department</th><th>Submitted By</th><th>Priority</th><th>Status</th><th>Created</th><th></th></tr>
+              </thead>
+              <tbody id="complaintTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <div class="overlay" id="overlay" hidden></div>
+    <aside class="side-panel wide" id="detailPanel">
+      <div class="panel-header">
+        <h3 id="panelTitle">Complaint</h3>
+        <button type="button" id="closePanel" class="panel-close">&times;</button>
+      </div>
+      <div class="panel-body" id="panelBody"></div>
+    </aside>
+
+    <script src="../../JS/Admin/admin-common.js"></script>
+    <script src="../../JS/Admin/admin-profile.js"></script>
+    <script src="../../JS/Admin/complaints.js"></script>
+  </body>
+</html>
