@@ -17,7 +17,7 @@ async function loginadmin(req, res) {
 
     const [database_user] = await connection.query(
       "SELECT * FROM user WHERE email = ?",
-      [email],
+      [String(email).trim().toLowerCase()],
     );
 
     if (database_user.length === 0) {
@@ -35,6 +35,18 @@ async function loginadmin(req, res) {
         Message: "Invalid email or password",
       });
     }
+
+    if (String(database_user[0].status || "").toUpperCase() !== "ACTIVE") {
+      return res.status(403).json({
+        Message: "Account is not active",
+      });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      console.error("JWT_SECRET is not configured");
+      return res.status(500).json({ Message: "Login is unavailable" });
+    }
+
     const token = jwt.sign(
       {
         user_id: database_user[0].user_id,
@@ -48,9 +60,9 @@ async function loginadmin(req, res) {
     return res.status(200).json({
       Message: "User login successfully",
       user_id: database_user[0].user_id,
-      name:database_user[0].name,
+      name: database_user[0].name,
       role: database_user[0].role,
-      token:token,
+      token: token,
     });
   } catch (error) {
     console.error("Login error:", error.message);
