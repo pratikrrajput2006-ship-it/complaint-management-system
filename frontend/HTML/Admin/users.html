@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Management - CMS</title>
+    <link rel="stylesheet" href="../../css/Admin/admin-common.css" />
+  </head>
+
+  <body>
+    <header class="dashboard-header">
+      <div class="logo-area">
+        <h1>CMS</h1>
+        <span>Complaint Management System</span>
+      </div>
+
+      <div class="admin-area">
+        <span id="adminName"></span>
+        <button id="logoutButton" type="button">Logout</button>
+      </div>
+    </header>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-link">Dashboard</a>
+          <a href="departments.html" class="nav-link">Departments</a>
+          <a href="authority.html" class="nav-link">Higher Authority</a>
+          <a href="categories.html" class="nav-link">Categories</a>
+          <a href="complaints.html" class="nav-link">Complaints</a>
+          <a href="feedback.html" class="nav-link">Feedback</a>
+          <a href="users.html" class="nav-link active">Users</a>
+          <a href="notifications.html" class="nav-link">Notifications <span class="nav-badge" id="notifBadge" hidden></span></a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <section class="welcome-section">
+          <h2>User Management</h2>
+          <p>View all students, staff and admins. Use Manage HA to open a staff member in Higher Authority.</p>
+        </section>
+
+        <section class="dashboard-summary">
+          <div class="summary-card">
+            <h3>Total Users</h3>
+            <p id="totalUsers">--</p>
+          </div>
+          <div class="summary-card">
+            <h3>Students</h3>
+            <p id="totalStudents">--</p>
+          </div>
+          <div class="summary-card">
+            <h3>Staff</h3>
+            <p id="totalStaff">--</p>
+          </div>
+          <div class="summary-card">
+            <h3>Admins</h3>
+            <p id="totalAdmins">--</p>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="tabs">
+            <button type="button" class="tab active" data-role="">All</button>
+            <button type="button" class="tab" data-role="Student">Students</button>
+            <button type="button" class="tab" data-role="Staff">Staff</button>
+            <button type="button" class="tab" data-role="Admin">Admins</button>
+          </div>
+          <div class="toolbar">
+            <div class="form-group">
+              <label for="searchInput">Search</label>
+              <input type="search" id="searchInput" placeholder="ID, name, email, PRN or employee no" />
+            </div>
+          </div>
+          <p class="result-count" id="resultCount"></p>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr><th>User ID</th><th>Name</th><th>Email</th><th>Role</th><th>PRN / Employee No</th><th>Department</th><th>HA</th><th>Status</th><th></th></tr>
+              </thead>
+              <tbody id="userTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <script src="../../JS/Admin/admin-common.js"></script>
+    <script src="../../JS/Admin/admin-profile.js"></script>
+    <script src="../../JS/Admin/users.js"></script>
+  </body>
+</html>
