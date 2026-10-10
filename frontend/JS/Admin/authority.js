@@ -210,4 +210,11 @@ if (!token || !user || user.role !== "Admin") {
     }
     haHistorySection.hidden = false;
   }
+  // Open directly from the Users page: authority.html?staff_id=STF001
+  const staffIdFromUrl = new URLSearchParams(window.location.search).get("staff_id");
+  if (staffIdFromUrl) {
+    document.getElementById("staffId").value = staffIdFromUrl;
+    verifyStaff(staffIdFromUrl);
+  }
+
 }
