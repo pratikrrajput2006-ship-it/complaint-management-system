@@ -35,7 +35,9 @@ VALUES
     ('COMPLAINT', 1),
     ('DEPARTMENT', 1),
     ('STAFF', 1),
-    ('STUDENT', 1);
+    ('STUDENT', 1),
+    ('FEEDBACK', 1),
+    ('NOTIFICATION', 1);
 
 CREATE TABLE
     department (
@@ -183,3 +185,30 @@ CREATE TABLE
         INDEX idx_assignment_complaint (complaint_id),
         INDEX idx_assignment_staff_status (staff_id, assignment_status)
     );
+
+CREATE TABLE
+    IF NOT EXISTS feedback (
+        feedback_id VARCHAR(10) PRIMARY KEY,
+        complaint_id VARCHAR(10) NOT NULL UNIQUE,
+        user_id VARCHAR(10) NOT NULL,
+        rating INT NOT NULL,
+        comment VARCHAR(500) NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT chk_feedback_rating CHECK (rating BETWEEN 1 AND 5),
+        CONSTRAINT fk_feedback_complaint FOREIGN KEY (complaint_id) REFERENCES complaint (complaint_id) ON UPDATE CASCADE ON DELETE RESTRICT,
+        CONSTRAINT fk_feedback_user FOREIGN KEY (user_id) REFERENCES user (user_id) ON UPDATE CASCADE ON DELETE RESTRICT
+    ) ENGINE = InnoDB;
+
+CREATE TABLE notification (
+    notification_id VARCHAR(10) PRIMARY KEY,
+    user_id VARCHAR(10) NOT NULL,
+    complaint_id VARCHAR(10) NULL,
+    title VARCHAR(150) NOT NULL,
+    message VARCHAR(500) NOT NULL,
+    notification_type VARCHAR(40) NOT NULL,
+    is_read TINYINT(1) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_notification_user FOREIGN KEY (user_id) REFERENCES user (user_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_notification_complaint FOREIGN KEY (complaint_id) REFERENCES complaint (complaint_id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    INDEX idx_notification_user (user_id, is_read, created_at)
+) ENGINE = InnoDB;

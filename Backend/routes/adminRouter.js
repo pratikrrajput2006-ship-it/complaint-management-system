@@ -18,6 +18,21 @@ const {
 } = require("../controller/adminController");
 const { authMiddleware } = require("../middleware/authmiddleware");
 const { rolemiddleware } = require("../middleware/rolemiddleware");
+const {
+  getAdminComplaints,
+  getAdminComplaintDetails,
+  startAdminReview,
+  resolveByAdmin,
+  rejectByAdmin,
+  reassignComplaint,
+  getComplaintAssignments,
+} = require("../controller/adminComplaintController");
+const { getAllFeedback } = require("../controller/feedbackController");
+const {
+  getDashboardStats,
+  getUsers,
+  getActiveHAs,
+} = require("../controller/adminReportController");
 const router = express.Router();
 router.post("/create", createAdmin);
 router.get(
@@ -105,4 +120,62 @@ router.put(
   rolemiddleware("Admin"),
   updateCategory,
 );
+
+// Complaint management (escalated complaints)
+router.get(
+  "/complaints",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  getAdminComplaints,
+);
+router.get(
+  "/complaints/:complaint_id",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  getAdminComplaintDetails,
+);
+router.patch(
+  "/complaints/:complaint_id/start-review",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  startAdminReview,
+);
+router.patch(
+  "/complaints/:complaint_id/resolve",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  resolveByAdmin,
+);
+router.patch(
+  "/complaints/:complaint_id/reject",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  rejectByAdmin,
+);
+router.get(
+  "/feedback",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  getAllFeedback,
+);
+router.patch(
+  "/complaints/:complaint_id/reassign",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  reassignComplaint,
+);
+router.get(
+  "/complaints/:complaint_id/assignments",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  getComplaintAssignments,
+);
+router.get(
+  "/stats",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  getDashboardStats,
+);
+router.get("/users", authMiddleware, rolemiddleware("Admin"), getUsers);
+router.get("/ha", authMiddleware, rolemiddleware("Admin"), getActiveHAs);
 module.exports = router;

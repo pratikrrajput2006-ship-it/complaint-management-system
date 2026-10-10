@@ -7,11 +7,21 @@ const {
 const { authMiddleware } = require("../middleware/authmiddleware");
 const { rolemiddleware } = require("../middleware/rolemiddleware");
 const { getActiveCategories } = require("../controller/adminController");
+const {
+  createComplaint,
+  getMyComplaints,
+  getComplaintDetails,
+  reopenComplaint,
+} = require("../controller/complaintController");
+const {
+  createFeedback,
+  getMyFeedback,
+} = require("../controller/feedbackController");
 const router = express.Router();
 
 router.post("/create", createStudent);
 router.get(
-  "/dashbord",
+  "/dashboard",
   authMiddleware,
   rolemiddleware("Student"),
   (req, res) => {
@@ -40,5 +50,41 @@ router.get(
   authMiddleware,
   rolemiddleware("Student"),
   getActiveCategories,
+);
+router.post(
+  "/complaints",
+  authMiddleware,
+  rolemiddleware("Student"),
+  createComplaint,
+);
+router.get(
+  "/complaints",
+  authMiddleware,
+  rolemiddleware("Student"),
+  getMyComplaints,
+);
+router.get(
+  "/complaints/:complaint_id",
+  authMiddleware,
+  rolemiddleware("Student"),
+  getComplaintDetails,
+);
+router.post(
+  "/complaints/:complaint_id/feedback",
+  authMiddleware,
+  rolemiddleware("Student"),
+  createFeedback,
+);
+router.get(
+  "/complaints/:complaint_id/feedback",
+  authMiddleware,
+  rolemiddleware("Student"),
+  getMyFeedback,
+);
+router.patch(
+  "/complaints/:complaint_id/reopen",
+  authMiddleware,
+  rolemiddleware("Student"),
+  reopenComplaint,
 );
 module.exports = router;
