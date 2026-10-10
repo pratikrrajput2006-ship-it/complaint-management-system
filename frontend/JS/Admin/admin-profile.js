@@ -150,7 +150,7 @@
       <div class="pf-top">
         <div class="pf-big">${esc(initials(profile.name))}</div>
         <div>
-          <h4>${esc(profile.name)}</h4>
+          <h4>${esc(profile.name)} (Admin)</h4>
           <p>${esc(profile.designation)}</p>
         </div>
       </div>
