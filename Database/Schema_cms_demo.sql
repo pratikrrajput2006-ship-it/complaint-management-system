@@ -1,6 +1,6 @@
-CREATE DATABASE IF NOT EXISTS complaint_management_system;
+CREATE DATABASE IF NOT EXISTS cms_demo;
 
-USE complaint_management_system;
+USE cms_demo;
 
 CREATE TABLE
     user (
