@@ -1,110 +1,6 @@
 const bcrypt = require("bcrypt");
 const pool = require("../config/db");
-async function createAdmin(req, res) {
-  const { name, email, password, phone, emp_no, designation } = req.body;
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  let connection;
-
-  try {
-    // 1. Required fields
-    if (!name || !email || !password || !emp_no || !designation) {
-      return res.status(400).json({
-        message: "All required fields are required",
-      });
-    }
-
-    // 2. Validate email
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({
-        message: "Email is not correct",
-      });
-    }
-
-    // 3. Validate password
-    if (password.length < 8) {
-      return res.status(400).json({
-        message: "Password length must be at least 8 characters",
-      });
-    }
-
-    // 4. Get one connection
-    connection = await pool.getConnection();
-
-    // 5. Start transaction
-    await connection.beginTransaction();
-
-    // 6. Lock ADMIN sequence row
-    const [rows] = await connection.query(
-      `SELECT next_number
-             FROM id_sequence
-             WHERE role = ?
-             FOR UPDATE`,
-      ["ADMIN"],
-    );
-
-    if (rows.length === 0) {
-      throw new Error("ADMIN sequence not found");
-    }
-
-    // 7. Use current number
-    const nextNumber = rows[0].next_number;
-
-    // 8. Generate Admin ID
-    const adminId = `ADM${String(nextNumber).padStart(3, "0")}`;
-
-    // 9. Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // 10. Increase sequence for next Admin
-    await connection.query(
-      `UPDATE id_sequence
-             SET next_number = next_number + 1
-             WHERE role = ?`,
-      ["ADMIN"],
-    );
-
-    // 11. Insert into USER
-    await connection.query(
-      `INSERT INTO user
-            (user_id, name, email, password_hash, role, phone)
-            VALUES (?, ?, ?, ?, ?, ?)`,
-      [adminId, name, email, hashedPassword, "Admin", phone || null],
-    );
-
-    // 12. Insert into ADMIN
-    await connection.query(
-      `INSERT INTO admin
-            (admin_id, employee_no, designation)
-            VALUES (?, ?, ?)`,
-      [adminId, emp_no, designation],
-    );
-
-    // 13. Save transaction
-    await connection.commit();
-
-    return res.status(201).json({
-      message: "Admin account created successfully",
-      admin_id: adminId,
-    });
-  } catch (error) {
-    console.error("Admin creation error:", error.message);
-
-    if (connection) {
-      await connection.rollback();
-    }
-
-    return res.status(500).json({
-      message: "Admin account creation failed",
-    });
-  } finally {
-    if (connection) {
-      connection.release();
-    }
-  }
-}
-
+const { moveComplaintsToAdminQueue } = require("../utils/HaRemovalHelper");
 async function getAdminProfile(req, res) {
   let connection;
 
@@ -255,7 +151,8 @@ async function verifyStaffForHA(req, res) {
       LEFT JOIN department AS ha_department
         ON ha_history.department_id = ha_department.department_id
 
-      WHERE staff.staff_id = ?`,
+      WHERE staff.staff_id = ?
+        AND user.role = 'Staff'`,
       [staff_id],
     );
 
@@ -296,22 +193,27 @@ async function assignHA(req, res) {
     // 3. Start transaction
     await connection.beginTransaction();
 
-    // 4. Check Staff exists and get current HA status
+    // 4. Lock and verify the Staff account and its current role/status.
+    // A promoted Admin still has a staff row for historical foreign keys, but
+    // must not be assignable as an HA after the role changes to Admin.
     const [staffRows] = await connection.query(
-      `SELECT
-          staff_id,
-          ha_status
-       FROM staff
-       WHERE staff_id = ?`,
+      `SELECT s.staff_id, s.ha_status, u.role, u.status AS user_status
+       FROM staff s
+       INNER JOIN user u ON u.user_id = s.staff_id
+       WHERE s.staff_id = ?
+       FOR UPDATE`,
       [staff_id],
     );
 
-    // Staff not found
     if (staffRows.length === 0) {
       await connection.rollback();
+      return res.status(404).json({ Message: "Staff does not exist" });
+    }
 
-      return res.status(404).json({
-        Message: "Staff does not exist",
+    if (staffRows[0].role !== "Staff" || staffRows[0].user_status !== "ACTIVE") {
+      await connection.rollback();
+      return res.status(409).json({
+        Message: "Only active, ordinary Staff accounts can be assigned as an HA",
       });
     }
 
@@ -386,6 +288,7 @@ async function assignHA(req, res) {
 }
 async function removeHA(req, res) {
   const { staff_id } = req.body;
+  const admin_id = req.user.user_id;
   let connection;
 
   try {
@@ -399,26 +302,51 @@ async function removeHA(req, res) {
     await connection.beginTransaction();
 
     const [staff_rows] = await connection.query(
-      `SELECT
-         staff.ha_status,
-         ha_history.status
+      `SELECT ha_status
        FROM staff
-       JOIN ha_history
-         ON staff.staff_id = ha_history.staff_id
-       WHERE staff.staff_id = ?
-       AND ha_history.status = 'ACTIVE'`,
+       WHERE staff_id = ?
+       FOR UPDATE`,
+      [staff_id],
+    );
+    if (staff_rows.length === 0) {
+      await connection.rollback();
+
+      return res.status(404).json({
+        Message: "Staff does not exist",
+      });
+    }
+
+    const [history_rows] = await connection.query(
+      `SELECT department_id
+       FROM ha_history
+       WHERE staff_id = ?
+       AND status = 'ACTIVE'`,
       [staff_id],
     );
 
-    console.log(staff_rows);
+    if (history_rows.length === 0) {
+      // ha_status says ACTIVE but there is no HA record: repair the mismatch
+      if (staff_rows[0].ha_status === "ACTIVE") {
+        await connection.query(
+          `UPDATE staff SET ha_status = 'NONE' WHERE staff_id = ?`,
+          [staff_id],
+        );
+        await connection.commit();
 
-    if (staff_rows.length === 0) {
+        return res.status(200).json({
+          Message: "HA status was out of sync and has been reset",
+          Staff: staff_id,
+        });
+      }
+
       await connection.rollback();
 
       return res.status(409).json({
         Message: "Staff does not have an active HA assignment",
       });
     }
+
+    const department_id = history_rows[0].department_id;
 
     await connection.query(
       `UPDATE staff
@@ -436,11 +364,23 @@ async function removeHA(req, res) {
       [staff_id],
     );
 
+    // Release the HA's complaints and send them to the Admin queue
+    const moved_count = await moveComplaintsToAdminQueue(
+      connection,
+      staff_id,
+      department_id,
+      admin_id,
+    );
+
     await connection.commit();
 
     return res.status(200).json({
-      Message: "HA removed successfully",
+      Message:
+        moved_count > 0
+          ? `HA removed successfully. ${moved_count} complaint(s) moved to Admin review`
+          : "HA removed successfully",
       Staff: staff_id,
+      Moved_Complaints: moved_count,
     });
   } catch (error) {
     console.error("Failed to remove HA:", error.message);
@@ -1258,7 +1198,6 @@ async function updateCategory(req, res) {
   }
 }
 module.exports = {
-  createAdmin,
   getAdminProfile,
   updateAdminProfile,
   verifyStaffForHA,

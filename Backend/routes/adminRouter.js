@@ -1,6 +1,5 @@
 const express = require("express");
 const {
-  createAdmin,
   getAdminProfile,
   updateAdminProfile,
   verifyStaffForHA,
@@ -33,8 +32,8 @@ const {
   getUsers,
   getActiveHAs,
 } = require("../controller/adminReportController");
+const { promoteStaffToAdmin } = require("../controller/adminPromotionController");
 const router = express.Router();
-router.post("/create", createAdmin);
 router.get(
   "/dashboard",
   authMiddleware,
@@ -178,4 +177,10 @@ router.get(
 );
 router.get("/users", authMiddleware, rolemiddleware("Admin"), getUsers);
 router.get("/ha", authMiddleware, rolemiddleware("Admin"), getActiveHAs);
+router.post(
+  "/users/:user_id/promote",
+  authMiddleware,
+  rolemiddleware("Admin"),
+  promoteStaffToAdmin,
+);
 module.exports = router;
