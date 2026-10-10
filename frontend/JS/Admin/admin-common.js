@@ -3,11 +3,12 @@ const API = "http://localhost:3000/api";
 const token = localStorage.getItem("token");
 const user = JSON.parse(localStorage.getItem("user") || "null");
 const isAdmin = Boolean(token && user && user.role === "Admin");
+const isSystemManager = Boolean(isAdmin && user.user_id === "ADM001");
 
 if (!isAdmin) {
   window.location.href = "../auth/login.html";
 } else {
-  document.getElementById("adminName").textContent = user.name;
+  document.getElementById("adminName").textContent = `${user.name} (Admin)`;
   document.getElementById("logoutButton").addEventListener("click", () => {
     localStorage.clear();
     window.location.href = "../auth/login.html";
@@ -18,7 +19,7 @@ const STATUS_INFO = {
   PENDING_HA: ["Pending HA", "b-amber"],
   UNDER_HA_REVIEW: ["Under HA Review", "b-blue"],
   RESOLVED_BY_HA: ["Resolved by HA", "b-green"],
-  PENDING_ADMIN_REVIEW: ["Reopened - Pending Admin", "b-purple"],
+  PENDING_ADMIN_REVIEW: ["Pending Admin Review", "b-purple"],
   ESCALATED_TO_ADMIN: ["Escalated to Admin", "b-orange"],
   UNDER_ADMIN_REVIEW: ["Under Admin Review", "b-blue"],
   RESOLVED_BY_ADMIN: ["Resolved by Admin", "b-green"],
