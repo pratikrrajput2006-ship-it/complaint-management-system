@@ -4,46 +4,83 @@ const bcrypt = require("bcrypt");
 async function createStudent(req, res) {
   const body = req.body && typeof req.body === "object" ? req.body : {};
   const name = typeof body.name === "string" ? body.name.trim() : "";
-  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+  const email =
+    typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
   const password = typeof body.password === "string" ? body.password : "";
-  const phone = typeof body.phone === "string" && body.phone.trim() ? body.phone.trim() : null;
+  const phone =
+    typeof body.phone === "string" && body.phone.trim()
+      ? body.phone.trim()
+      : null;
   const prn = typeof body.prn === "string" ? body.prn.trim() : "";
-  const department_id = typeof body.department_id === "string" ? body.department_id.trim() : "";
-  const course = typeof body.course === "string" && body.course.trim() ? body.course.trim() : null;
-  const address = typeof body.address === "string" && body.address.trim() ? body.address.trim() : null;
+  const department_id =
+    typeof body.department_id === "string" ? body.department_id.trim() : "";
+  const course =
+    typeof body.course === "string" && body.course.trim()
+      ? body.course.trim()
+      : null;
+  const address =
+    typeof body.address === "string" && body.address.trim()
+      ? body.address.trim()
+      : null;
   const rawYear = body.year;
-  const year = rawYear === undefined || rawYear === null || rawYear === "" ? null : Number(rawYear);
+  const year =
+    rawYear === undefined || rawYear === null || rawYear === ""
+      ? null
+      : Number(rawYear);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   let connection;
   let transactionStarted = false;
 
   try {
     if (!name || !email || !password || !prn || !department_id) {
-      return res.status(400).json({ Message: "Name, email, password, PRN and department are required" });
+      return res
+        .status(400)
+        .json({
+          Message: "Name, email, password, PRN and department are required",
+        });
     }
-    if (name.length > 100 || email.length > 150 || prn.length > 20 || department_id.length > 10) {
-      return res.status(400).json({ Message: "One or more fields exceed the allowed length" });
+    if (
+      name.length > 100 ||
+      email.length > 150 ||
+      prn.length > 20 ||
+      department_id.length > 10
+    ) {
+      return res
+        .status(400)
+        .json({ Message: "One or more fields exceed the allowed length" });
     }
     if (!emailRegex.test(email)) {
       return res.status(400).json({ Message: "Email is not valid" });
     }
     if (password.length < 8) {
-      return res.status(400).json({ Message: "Password length must be at least 8 characters" });
+      return res
+        .status(400)
+        .json({ Message: "Password length must be at least 8 characters" });
     }
     if (!/^[A-Za-z0-9]{1,20}$/.test(prn)) {
-      return res.status(400).json({ Message: "PRN must contain letters and numbers only" });
+      return res
+        .status(400)
+        .json({ Message: "PRN must contain letters and numbers only" });
     }
     if (phone && phone.length > 15) {
-      return res.status(400).json({ Message: "Phone must not exceed 15 characters" });
+      return res
+        .status(400)
+        .json({ Message: "Phone must not exceed 15 characters" });
     }
     if (course && course.length > 100) {
-      return res.status(400).json({ Message: "Course must not exceed 100 characters" });
+      return res
+        .status(400)
+        .json({ Message: "Course must not exceed 100 characters" });
     }
     if (address && address.length > 255) {
-      return res.status(400).json({ Message: "Address must not exceed 255 characters" });
+      return res
+        .status(400)
+        .json({ Message: "Address must not exceed 255 characters" });
     }
     if (year !== null && (!Number.isInteger(year) || year < 1 || year > 6)) {
-      return res.status(400).json({ Message: "Year must be a whole number from 1 to 6" });
+      return res
+        .status(400)
+        .json({ Message: "Year must be a whole number from 1 to 6" });
     }
 
     const hashPassword = await bcrypt.hash(password, 10);
@@ -58,7 +95,9 @@ async function createStudent(req, res) {
     if (departments.length === 0) {
       await connection.rollback();
       transactionStarted = false;
-      return res.status(400).json({ Message: "Invalid or inactive department" });
+      return res
+        .status(400)
+        .json({ Message: "Invalid or inactive department" });
     }
 
     const [sequenceRows] = await connection.query(
@@ -92,12 +131,19 @@ async function createStudent(req, res) {
     });
   } catch (error) {
     if (transactionStarted && connection) {
-      try { await connection.rollback(); } catch (rollbackError) {
-        console.error("Student creation rollback error:", rollbackError.message);
+      try {
+        await connection.rollback();
+      } catch (rollbackError) {
+        console.error(
+          "Student creation rollback error:",
+          rollbackError.message,
+        );
       }
     }
     if (error && error.code === "ER_DUP_ENTRY") {
-      return res.status(409).json({ Message: "Email or PRN is already registered" });
+      return res
+        .status(409)
+        .json({ Message: "Email or PRN is already registered" });
     }
     console.error("Student creation error:", error.message);
     return res.status(500).json({ Message: "Student account creation failed" });
@@ -154,12 +200,22 @@ async function getstudentProfile(req, res) {
 }
 
 async function updateStudentProfile(req, res) {
-  const { name, phone, email,prn, department_id,course,year,address} = req.body;
+  const { name, phone, email, prn, department_id, course, year, address } =
+    req.body;
   let connection;
   try {
     connection = await pool.getConnection();
     await connection.beginTransaction();
-    if (!name && !phone && !email && !department_id&& !prn && !course && !year && !address) {
+    if (
+      !name &&
+      !phone &&
+      !email &&
+      !department_id &&
+      !prn &&
+      !course &&
+      !year &&
+      !address
+    ) {
       await connection.rollback();
       return res.status(400).json({
         Message: "Not any change at least one change is required",
@@ -203,15 +259,15 @@ async function updateStudentProfile(req, res) {
       studentUpdates.push("prn = ?");
       studentValues.push(prn);
     }
-        if (course) {
+    if (course) {
       studentUpdates.push("course = ?");
       studentValues.push(course);
     }
-        if (year) {
+    if (year) {
       studentUpdates.push("year = ?");
       studentValues.push(year);
     }
-        if (address) {
+    if (address) {
       studentUpdates.push("address = ?");
       studentValues.push(address);
     }
@@ -248,4 +304,4 @@ async function updateStudentProfile(req, res) {
   }
 }
 
-module.exports = { createStudent ,getstudentProfile,updateStudentProfile};
+module.exports = { createStudent, getstudentProfile, updateStudentProfile };

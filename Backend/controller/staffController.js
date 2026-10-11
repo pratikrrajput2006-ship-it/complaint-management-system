@@ -4,31 +4,62 @@ const bcrypt = require("bcrypt");
 async function createStaff(req, res) {
   const body = req.body && typeof req.body === "object" ? req.body : {};
   const name = typeof body.name === "string" ? body.name.trim() : "";
-  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+  const email =
+    typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
   const password = typeof body.password === "string" ? body.password : "";
-  const phone = typeof body.phone === "string" && body.phone.trim() ? body.phone.trim() : null;
-  const employee_no = typeof body.employee_no === "string" ? body.employee_no.trim() : "";
-  const department_id = typeof body.department_id === "string" ? body.department_id.trim() : "";
-  const designation = typeof body.designation === "string" ? body.designation.trim() : "";
+  const phone =
+    typeof body.phone === "string" && body.phone.trim()
+      ? body.phone.trim()
+      : null;
+  const employee_no =
+    typeof body.employee_no === "string" ? body.employee_no.trim() : "";
+  const department_id =
+    typeof body.department_id === "string" ? body.department_id.trim() : "";
+  const designation =
+    typeof body.designation === "string" ? body.designation.trim() : "";
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   let connection;
   let transactionStarted = false;
 
   try {
-    if (!name || !email || !password || !employee_no || !department_id || !designation) {
-      return res.status(400).json({ Message: "Name, email, password, employee number, department and designation are required" });
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !employee_no ||
+      !department_id ||
+      !designation
+    ) {
+      return res
+        .status(400)
+        .json({
+          Message:
+            "Name, email, password, employee number, department and designation are required",
+        });
     }
-    if (name.length > 100 || email.length > 150 || employee_no.length > 10 || department_id.length > 10 || designation.length > 50) {
-      return res.status(400).json({ Message: "One or more fields exceed the allowed length" });
+    if (
+      name.length > 100 ||
+      email.length > 150 ||
+      employee_no.length > 10 ||
+      department_id.length > 10 ||
+      designation.length > 50
+    ) {
+      return res
+        .status(400)
+        .json({ Message: "One or more fields exceed the allowed length" });
     }
     if (!emailRegex.test(email)) {
       return res.status(400).json({ Message: "Email is not valid" });
     }
     if (password.length < 8) {
-      return res.status(400).json({ Message: "Password length must be at least 8 characters" });
+      return res
+        .status(400)
+        .json({ Message: "Password length must be at least 8 characters" });
     }
     if (phone && phone.length > 15) {
-      return res.status(400).json({ Message: "Phone must not exceed 15 characters" });
+      return res
+        .status(400)
+        .json({ Message: "Phone must not exceed 15 characters" });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
@@ -43,7 +74,9 @@ async function createStaff(req, res) {
     if (departments.length === 0) {
       await connection.rollback();
       transactionStarted = false;
-      return res.status(400).json({ Message: "Invalid or inactive department" });
+      return res
+        .status(400)
+        .json({ Message: "Invalid or inactive department" });
     }
 
     const [sequenceRows] = await connection.query(
@@ -77,12 +110,16 @@ async function createStaff(req, res) {
     });
   } catch (error) {
     if (transactionStarted && connection) {
-      try { await connection.rollback(); } catch (rollbackError) {
+      try {
+        await connection.rollback();
+      } catch (rollbackError) {
         console.error("Staff creation rollback error:", rollbackError.message);
       }
     }
     if (error && error.code === "ER_DUP_ENTRY") {
-      return res.status(409).json({ Message: "Email or employee number is already registered" });
+      return res
+        .status(409)
+        .json({ Message: "Email or employee number is already registered" });
     }
     console.error("Staff creation error:", error.message);
     return res.status(500).json({ Message: "Staff account creation failed" });
