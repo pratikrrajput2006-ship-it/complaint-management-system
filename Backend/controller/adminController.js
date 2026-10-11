@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const pool = require("../config/db");
 const { moveComplaintsToAdminQueue } = require("../utils/HaRemovalHelper");
+const { createNotification, notifyHa } = require("../utils/notificationHelper");
 async function getAdminProfile(req, res) {
   let connection;
 
@@ -176,26 +177,20 @@ async function verifyStaffForHA(req, res) {
 }
 async function assignHA(req, res) {
   const { staff_id, department_id, remark } = req.body;
-
+  const admin_id = req.user.user_id;
   let connection;
 
   try {
-    // 1. Basic validation
     if (!staff_id || !department_id) {
       return res.status(400).json({
         Message: "Staff ID and Department ID are required",
       });
     }
 
-    // 2. Get database connection
     connection = await pool.getConnection();
-
-    // 3. Start transaction
     await connection.beginTransaction();
 
-    // 4. Lock and verify the Staff account and its current role/status.
-    // A promoted Admin still has a staff row for historical foreign keys, but
-    // must not be assignable as an HA after the role changes to Admin.
+    // Lock and verify the Staff account and its current role/status.
     const [staffRows] = await connection.query(
       `SELECT s.staff_id, s.ha_status, u.role, u.status AS user_status
        FROM staff s
@@ -217,73 +212,155 @@ async function assignHA(req, res) {
       });
     }
 
-    // 5. Check Staff already has active HA
     if (staffRows[0].ha_status === "ACTIVE") {
       await connection.rollback();
-
       return res.status(409).json({
         Message: "Staff already has an active HA assignment",
       });
     }
 
-    // 6. Check Department exists and is active
     const [departmentRows] = await connection.query(
-      `SELECT
-          department_id,
-          department_name
+      `SELECT department_id, department_name
        FROM department
-       WHERE department_id = ?
-       AND status = 'ACTIVE'`,
+       WHERE department_id = ? AND status = 'ACTIVE'`,
       [department_id],
     );
 
     if (departmentRows.length === 0) {
       await connection.rollback();
-
       return res.status(400).json({
         Message: "Department does not exist or is inactive",
       });
     }
 
-    // 7. Create HA history record
+    // Make this Staff member an active HA for the selected department.
     await connection.query(
-      `INSERT INTO ha_history
-       (staff_id, department_id, assigned_by, remark)
+      `INSERT INTO ha_history (staff_id, department_id, assigned_by, remark)
        VALUES (?, ?, ?, ?)`,
-      [staff_id, department_id, req.user.user_id, remark || null],
+      [staff_id, department_id, admin_id, remark || null],
     );
 
-    // 8. Update current Staff HA status
     await connection.query(
-      `UPDATE staff
-       SET ha_status = ?
-       WHERE staff_id = ?`,
-      ["ACTIVE", staff_id],
+      `UPDATE staff SET ha_status = 'ACTIVE' WHERE staff_id = ?`,
+      [staff_id],
     );
 
-    // 9. Commit transaction
+    // Existing complaints that were waiting only because the department had
+    // no active HA can now enter the HA queue. Leave complaints with an active
+    // assignment, and all escalated/resolved/rejected complaints, untouched.
+    const [pendingRows] = await connection.query(
+      `SELECT c.complaint_id, c.submitted_by
+       FROM complaint c
+       WHERE c.department_id = ?
+         AND c.status = 'PENDING_ADMIN_REVIEW'
+         AND NOT EXISTS (
+           SELECT 1
+           FROM assignment a
+           WHERE a.complaint_id = c.complaint_id
+             AND a.assignment_status = 'ACTIVE'
+         )
+       ORDER BY c.created_at ASC
+       FOR UPDATE`,
+      [department_id],
+    );
+
+    const [activeHARows] = await connection.query(
+      `SELECT h.staff_id
+       FROM ha_history h
+       JOIN staff s ON s.staff_id = h.staff_id
+       JOIN user u ON u.user_id = s.staff_id
+       WHERE h.department_id = ?
+         AND h.status = 'ACTIVE'
+         AND s.ha_status = 'ACTIVE'
+         AND u.role = 'Staff'
+         AND u.status = 'ACTIVE'`,
+      [department_id],
+    );
+    const activeHAIds = activeHARows.map((row) => row.staff_id);
+
+    let movedComplaints = 0;
+    for (const complaint of pendingRows) {
+      // A complainant must never be routed to their own HA account as their
+      // only reviewer. Keep it in the Admin queue if no other HA is available.
+      const hasEligibleReviewer = activeHAIds.some(
+        (activeHaId) => activeHaId !== complaint.submitted_by,
+      );
+      if (!hasEligibleReviewer) continue;
+
+      const [updateResult] = await connection.query(
+        `UPDATE complaint
+         SET status = 'PENDING_HA'
+         WHERE complaint_id = ? AND status = 'PENDING_ADMIN_REVIEW'`,
+        [complaint.complaint_id],
+      );
+      if (!updateResult || updateResult.affectedRows !== 1) continue;
+
+      const trackerRemark =
+        `An active Higher Authority was assigned to department ${department_id}; complaint moved from Admin queue to HA queue`;
+      await connection.query(
+        `INSERT INTO complaint_tracker
+         (complaint_id, previous_status, status, updated_by, action_type, remark)
+         VALUES (?, 'PENDING_ADMIN_REVIEW', 'PENDING_HA', ?, 'HA_DEPARTMENT_ASSIGNED', ?)`,
+        [complaint.complaint_id, admin_id, trackerRemark],
+      );
+
+      await createNotification(
+        connection,
+        complaint.submitted_by,
+        complaint.complaint_id,
+        "Higher Authority available",
+        `Your complaint ${complaint.complaint_id} has moved to your department's Higher Authority queue`,
+        "HA_DEPARTMENT_ASSIGNED",
+      );
+
+      await notifyHa(
+        connection,
+        department_id,
+        complaint.complaint_id,
+        "Pending department complaint",
+        `Complaint ${complaint.complaint_id} is now available in your department's HA queue`,
+        "NEW_COMPLAINT",
+        complaint.submitted_by,
+      );
+
+      // Clear stale unread Admin alerts that said this complaint had no HA.
+      await connection.query(
+        `UPDATE notification n
+         JOIN admin a ON a.admin_id = n.user_id
+         SET n.is_read = 1
+         WHERE n.complaint_id = ?
+           AND n.notification_type = 'NEEDS_HA_ASSIGNMENT'
+           AND n.is_read = 0`,
+        [complaint.complaint_id],
+      );
+
+      movedComplaints += 1;
+    }
+
     await connection.commit();
 
-    // 10. Send success response
     return res.status(200).json({
       Message: "HA assigned successfully",
       HA: staff_id,
       Department: departmentRows[0].department_name,
+      Moved_Complaints: movedComplaints,
     });
   } catch (error) {
     console.error("Failed to assign HA:", error.message);
 
     if (connection) {
-      await connection.rollback();
+      try {
+        await connection.rollback();
+      } catch (rollbackError) {
+        console.error("HA assignment rollback failed:", rollbackError.message);
+      }
     }
 
     return res.status(500).json({
       Message: "Failed to assign HA",
     });
   } finally {
-    if (connection) {
-      connection.release();
-    }
+    if (connection) connection.release();
   }
 }
 async function removeHA(req, res) {

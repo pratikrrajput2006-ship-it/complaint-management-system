@@ -2,102 +2,114 @@ const pool = require("../config/db");
 const bcrypt = require("bcrypt");
 
 async function createStudent(req, res) {
-  const {
-    name,
-    email,
-    password,
-    phone,
-    prn,
-    department_id,
-    course,
-    year,
-    address,
-  } = req.body;
+  const body = req.body && typeof req.body === "object" ? req.body : {};
+  const name = typeof body.name === "string" ? body.name.trim() : "";
+  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+  const password = typeof body.password === "string" ? body.password : "";
+  const phone = typeof body.phone === "string" && body.phone.trim() ? body.phone.trim() : null;
+  const prn = typeof body.prn === "string" ? body.prn.trim() : "";
+  const department_id = typeof body.department_id === "string" ? body.department_id.trim() : "";
+  const course = typeof body.course === "string" && body.course.trim() ? body.course.trim() : null;
+  const address = typeof body.address === "string" && body.address.trim() ? body.address.trim() : null;
+  const rawYear = body.year;
+  const year = rawYear === undefined || rawYear === null || rawYear === "" ? null : Number(rawYear);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   let connection;
+  let transactionStarted = false;
+
   try {
     if (!name || !email || !password || !prn || !department_id) {
-      return res.status(400).json({
-        message: "Fill required Details",
-      });
+      return res.status(400).json({ Message: "Name, email, password, PRN and department are required" });
+    }
+    if (name.length > 100 || email.length > 150 || prn.length > 20 || department_id.length > 10) {
+      return res.status(400).json({ Message: "One or more fields exceed the allowed length" });
     }
     if (!emailRegex.test(email)) {
-      return res.status(400).json({
-        message: "Email is not correct",
-      });
+      return res.status(400).json({ Message: "Email is not valid" });
     }
-
-    // 3. Validate password
     if (password.length < 8) {
-      return res.status(400).json({
-        message: "Password length must be at least 8 characters",
-      });
+      return res.status(400).json({ Message: "Password length must be at least 8 characters" });
     }
-    const hash_password = await bcrypt.hash(password, 10);
+    if (!/^[A-Za-z0-9]{1,20}$/.test(prn)) {
+      return res.status(400).json({ Message: "PRN must contain letters and numbers only" });
+    }
+    if (phone && phone.length > 15) {
+      return res.status(400).json({ Message: "Phone must not exceed 15 characters" });
+    }
+    if (course && course.length > 100) {
+      return res.status(400).json({ Message: "Course must not exceed 100 characters" });
+    }
+    if (address && address.length > 255) {
+      return res.status(400).json({ Message: "Address must not exceed 255 characters" });
+    }
+    if (year !== null && (!Number.isInteger(year) || year < 1 || year > 6)) {
+      return res.status(400).json({ Message: "Year must be a whole number from 1 to 6" });
+    }
 
+    const hashPassword = await bcrypt.hash(password, 10);
     connection = await pool.getConnection();
-    connection.beginTransaction();
-    const [department_rows]=await connection.query(
-      'SELECT department_id FROM department WHERE department_id=? AND status="ACTIVE"',
-      [department_id]
-    );
-    if (department_rows.length === 0) {
-      await connection.rollback();
-      return res.status(403).json(
-        {
-           message: "Invalid or inactive department",
-        }
-      )
-    }
-    const [rows] = await connection.query(
-      "SELECT next_number FROM id_sequence WHERE role=? FOR UPDATE",
-      ["Student"],
-    );
-    if (rows.length == 0) {
-      res.status(404).json({
-        message: "id not found",
-      });
-    }
-    const id_number = rows[0].next_number;
+    await connection.beginTransaction();
+    transactionStarted = true;
 
-    const user_id = `STU${String(id_number).padStart(3, 0)}`;
+    const [departments] = await connection.query(
+      'SELECT department_id FROM department WHERE department_id = ? AND status = "ACTIVE"',
+      [department_id],
+    );
+    if (departments.length === 0) {
+      await connection.rollback();
+      transactionStarted = false;
+      return res.status(400).json({ Message: "Invalid or inactive department" });
+    }
+
+    const [sequenceRows] = await connection.query(
+      "SELECT next_number FROM id_sequence WHERE role = ? FOR UPDATE",
+      ["STUDENT"],
+    );
+    if (sequenceRows.length === 0) {
+      throw new Error("Student ID sequence not found");
+    }
+
+    const userId = `STU${String(sequenceRows[0].next_number).padStart(3, "0")}`;
     await connection.query(
-      "INSERT INTO user (user_id,name,email,password_hash,role,phone) VALUES (?,?,?,?,?,?)",
-      [user_id, name, email, hash_password, "Student", phone],
+      "INSERT INTO user (user_id, name, email, password_hash, role, phone) VALUES (?, ?, ?, ?, ?, ?)",
+      [userId, name, email, hashPassword, "Student", phone],
     );
     await connection.query(
-      "UPDATE id_sequence SET next_number=next_number+1 WHERE role=?",
-      ["Student"],
+      "INSERT INTO student (student_id, prn, course, year, address, department_id) VALUES (?, ?, ?, ?, ?, ?)",
+      [userId, prn, course, year, address, department_id],
     );
     await connection.query(
-      "INSERT INTO student(student_id, prn,course,year, address, department_id) VALUES (?,?,?,?,?,?)",
-      [user_id, prn, course, year, address, department_id],
+      "UPDATE id_sequence SET next_number = next_number + 1 WHERE role = ?",
+      ["STUDENT"],
     );
     await connection.commit();
-    res.status(200).json({
+    transactionStarted = false;
+
+    return res.status(200).json({
       Message: "Student account is created",
-      Student_id: user_id,
+      Student_id: userId,
+      role: "Student",
     });
   } catch (error) {
+    if (transactionStarted && connection) {
+      try { await connection.rollback(); } catch (rollbackError) {
+        console.error("Student creation rollback error:", rollbackError.message);
+      }
+    }
+    if (error && error.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({ Message: "Email or PRN is already registered" });
+    }
     console.error("Student creation error:", error.message);
-
-    if (connection) {
-      await connection.rollback();
-    }
-
-    return res.status(500).json({
-      message: "Student account creation failed",
-    });
+    return res.status(500).json({ Message: "Student account creation failed" });
   } finally {
-    if (connection) {
-      connection.release();
-    }
+    if (connection) connection.release();
   }
 }
+
 async function getstudentProfile(req, res) {
   let connection;
   try {
-    const connection = await pool.getConnection();
+    connection = await pool.getConnection();
     const [rows] = await connection.query(
       `SELECT user.user_id,
       user.name,
@@ -148,7 +160,9 @@ async function updateStudentProfile(req, res) {
     connection = await pool.getConnection();
     await connection.beginTransaction();
     if (!name && !phone && !email && !department_id&& !prn && !course && !year && !address) {
-      return res.status(404).json({
+      await connection.rollback();
+      return res.status(400).json({
+        Message: "Not any change at least one change is required",
         message: "Not any change at least one change is required",
       });
     }
