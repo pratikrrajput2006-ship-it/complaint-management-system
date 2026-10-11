@@ -224,3 +224,33 @@ button:active {
         max-width: 520px;
     }
 }
+/* =========================
+   MESSAGE COLOURS + LINKS
+========================= */
+
+.message.error {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.message.success {
+    color: #16a34a;
+    font-weight: 600;
+}
+
+.auth-link {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.auth-link a {
+    color: #1d4ed8;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-link a:hover {
+    text-decoration: underline;
+}

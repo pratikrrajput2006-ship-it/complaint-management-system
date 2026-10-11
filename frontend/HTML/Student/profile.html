@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Profile - CMS</title>
+    <link rel="stylesheet" href="../../css/Student/student-common.css" />
+  </head>
+
+  <body>
+    <header class="dashboard-header">
+      <div class="logo-area">
+        <h1>CMS</h1>
+        <span>Complaint Management System</span>
+      </div>
+
+      <div class="admin-area">
+        <a id="userName" href="profile.html" title="My Profile"></a>
+        <button id="logoutButton" type="button">Logout</button>
+      </div>
+    </header>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-link">Dashboard</a>
+          <a href="submit-complaint.html" class="nav-link">Submit Complaint</a>
+          <a href="complaints.html" class="nav-link">My Complaints</a>
+          <a href="profile.html" class="nav-link active">My Profile</a>
+          <a href="notifications.html" class="nav-link">Notifications <span class="nav-badge" id="notifBadge" hidden></span></a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <section class="welcome-section">
+          <h2>My Profile</h2>
+          <p>Your account details. PRN, email and department can be changed only by the Admin.</p>
+        </section>
+
+        <div id="profileBox"><div class="empty">Loading...</div></div>
+
+      </main>
+    </div>
+
+    <script src="../../JS/Student/student-common.js"></script>
+    <script src="../../JS/Student/profile.js"></script>
+  </body>
+</html>

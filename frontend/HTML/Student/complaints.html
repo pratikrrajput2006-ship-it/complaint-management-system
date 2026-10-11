@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Complaints - CMS</title>
+    <link rel="stylesheet" href="../../css/Student/student-common.css" />
+  </head>
+
+  <body>
+    <header class="dashboard-header">
+      <div class="logo-area">
+        <h1>CMS</h1>
+        <span>Complaint Management System</span>
+      </div>
+
+      <div class="admin-area">
+        <a id="userName" href="profile.html" title="My Profile"></a>
+        <button id="logoutButton" type="button">Logout</button>
+      </div>
+    </header>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-link">Dashboard</a>
+          <a href="submit-complaint.html" class="nav-link">Submit Complaint</a>
+          <a href="complaints.html" class="nav-link active">My Complaints</a>
+          <a href="profile.html" class="nav-link">My Profile</a>
+          <a href="notifications.html" class="nav-link">Notifications <span class="nav-badge" id="notifBadge" hidden></span></a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <section class="welcome-section">
+          <h2>My Complaints</h2>
+          <p>All complaints you submitted. Click one to see details and progress.</p>
+        </section>
+
+        <section class="card">
+          <div class="tabs">
+            <button type="button" class="tab active" data-group="all" data-label="All">All</button>
+            <button type="button" class="tab" data-group="progress" data-label="In Progress">In Progress</button>
+            <button type="button" class="tab" data-group="resolved" data-label="Resolved">Resolved</button>
+            <button type="button" class="tab" data-group="rejected" data-label="Rejected">Rejected</button>
+          </div>
+          <div class="toolbar">
+            <div class="form-group">
+              <label for="searchInput">Search</label>
+              <input type="search" id="searchInput" placeholder="Complaint ID or subject" />
+            </div>
+            <a class="btn btn-primary" href="submit-complaint.html">+ New Complaint</a>
+          </div>
+          <p class="result-count" id="resultCount"></p>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr><th>ID</th><th>Subject</th><th>Department</th><th>Priority</th><th>Status</th><th>Submitted</th><th></th></tr>
+              </thead>
+              <tbody id="complaintTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <script src="../../JS/Student/student-common.js"></script>
+    <script src="../../JS/Student/complaints.js"></script>
+  </body>
+</html>

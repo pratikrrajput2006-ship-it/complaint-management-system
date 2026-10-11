@@ -1,0 +1,69 @@
+/* Shared registration page styling; base rules come from login.css. */
+.register-container {
+  max-width: 760px;
+}
+.register-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 18px;
+  row-gap: 0;
+}
+.register-grid .full {
+  grid-column: 1 / -1;
+}
+.register-grid select,
+.register-grid textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 15px;
+  font-family: inherit;
+  color: #1e293b;
+}
+.register-grid select:focus,
+.register-grid textarea:focus {
+  outline: none;
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+}
+.register-grid input:disabled,
+.register-grid select:disabled {
+  background: #f8fafc;
+  color: #94a3b8;
+}
+.field-hint {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #64748b;
+  margin-top: 6px;
+}
+.role-fields {
+  grid-column: 1 / -1;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  margin-bottom: 8px;
+}
+.role-fields[hidden] {
+  display: none !important;
+}
+.role-fields .register-grid {
+  column-gap: 14px;
+}
+#registerButton:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+@media (max-width: 600px) {
+  .register-grid {
+    grid-template-columns: 1fr;
+  }
+  .register-grid .full,
+  .role-fields {
+    grid-column: 1;
+  }
+}

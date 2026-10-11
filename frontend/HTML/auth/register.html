@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CMS - Create Account</title>
+    <link rel="stylesheet" href="../../css/auth/login.css" />
+    <link rel="stylesheet" href="../../css/auth/register.css" />
+  </head>
+  <body>
+    <main class="login-container register-container">
+      <section class="login-card">
+        <div class="login-header">
+          <h1>Complaint Management System</h1>
+          <p>Create a Student or Staff account</p>
+        </div>
+
+        <form id="registerForm" novalidate>
+          <div class="register-grid">
+            <div class="form-group full">
+              <label for="role">Register as *</label>
+              <select id="role" required>
+                <option value="" selected disabled>Choose Student or Staff</option>
+                <option value="Student">Student</option>
+                <option value="Staff">Staff</option>
+              </select>
+              <p class="field-hint">Admin accounts are not created here. The System Manager can promote eligible Staff members to Admin.</p>
+            </div>
+
+            <div class="form-group full">
+              <label for="name">Full Name *</label>
+              <input type="text" id="name" maxlength="100" placeholder="Enter your full name" autocomplete="name" required />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input type="email" id="email" maxlength="150" placeholder="Enter your email" autocomplete="email" required />
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone (optional)</label>
+              <input type="tel" id="phone" maxlength="15" placeholder="Mobile number" autocomplete="tel" />
+            </div>
+
+            <div class="form-group full">
+              <label for="department">Department *</label>
+              <select id="department" required>
+                <option value="" selected disabled>Loading departments...</option>
+              </select>
+            </div>
+
+            <div id="studentFields" class="role-fields full" hidden>
+              <div class="register-grid">
+                <div class="form-group">
+                  <label for="prn">PRN *</label>
+                  <input type="text" id="prn" maxlength="20" placeholder="Your PRN number" autocomplete="off" />
+                </div>
+                <div class="form-group">
+                  <label for="course">Course (optional)</label>
+                  <input type="text" id="course" maxlength="100" placeholder="Example: BTech CSE" />
+                </div>
+                <div class="form-group">
+                  <label for="year">Year (optional)</label>
+                  <select id="year">
+                    <option value="">Select year</option>
+                    <option value="1">1</option><option value="2">2</option>
+                    <option value="3">3</option><option value="4">4</option>
+                    <option value="5">5</option><option value="6">6</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="address">Address (optional)</label>
+                  <input type="text" id="address" maxlength="255" placeholder="Your address" autocomplete="street-address" />
+                </div>
+              </div>
+            </div>
+
+            <div id="staffFields" class="role-fields full" hidden>
+              <div class="register-grid">
+                <div class="form-group">
+                  <label for="employee_no">Employee Number *</label>
+                  <input type="text" id="employee_no" maxlength="10" placeholder="Letters and numbers" autocomplete="off" />
+                </div>
+                <div class="form-group">
+                  <label for="designation">Designation *</label>
+                  <input type="text" id="designation" maxlength="50" placeholder="Example: Lecturer" autocomplete="organization-title" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password *</label>
+              <input type="password" id="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" required />
+            </div>
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password *</label>
+              <input type="password" id="confirmPassword" minlength="8" autocomplete="new-password" placeholder="Re-enter password" required />
+            </div>
+          </div>
+
+          <button type="submit" id="registerButton">Create Account</button>
+          <p id="message" class="message" role="status" aria-live="polite"></p>
+        </form>
+
+        <p class="auth-link">Already have an account? <a href="login.html">Login</a></p>
+      </section>
+    </main>
+    <script src="../../JS/auth/register.js"></script>
+  </body>
+</html>
