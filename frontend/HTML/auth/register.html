@@ -1,109 +1,394 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CMS - Create Account</title>
-    <link rel="stylesheet" href="../../css/auth/login.css" />
-    <link rel="stylesheet" href="../../css/auth/register.css" />
-  </head>
-  <body>
-    <main class="login-container register-container">
-      <section class="login-card">
-        <div class="login-header">
-          <h1>Complaint Management System</h1>
-          <p>Create a Student or Staff account</p>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f5bd00">
+    <meta name="description"
+          content="Create a Student or Staff account for the Complaint Management System.">
+
+    <title>CMS | Register Account</title>
+
+    <link rel="icon"
+          type="image/svg+xml"
+          href="../../assets/cms-logo.svg">
+
+    <link rel="stylesheet"
+          href="../../css/auth/register.css">
+</head>
+
+<body>
+    <a class="skip-link" href="#registerForm">
+        Skip to registration form
+    </a>
+
+    <main class="register-frame">
+
+        <!-- Header -->
+        <header class="site-header">
+            <a class="brand" href="../index.html" aria-label="CMS Home">
+                <img
+                    src="../../assets/cms-logo.svg"
+                    alt="CMS - Complaint Management System"
+                    class="brand-logo">
+            </a>
+
+            <nav class="site-nav" aria-label="Main navigation">
+                <a href="../index.html#about">About</a>
+                <a href="../index.html#how-it-works">How It Works</a>
+                <a href="../index.html#contact">Contact</a>
+            </nav>
+        </header>
+
+        <!-- Main registration layout -->
+        <div class="register-layout">
+
+            <!-- Left introduction panel -->
+            <section class="intro-panel" aria-labelledby="introTitle">
+
+                <div class="intro-copy">
+                    <p class="eyebrow">START YOUR JOURNEY</p>
+
+                    <h1 id="introTitle">
+                        Create Your
+                        <span>Account</span>
+                    </h1>
+
+                    <span class="yellow-rule" aria-hidden="true"></span>
+
+                    <p class="intro-description">
+                        Register to report complaints, track progress,
+                        and receive updates from your institution
+                        in one place.
+                    </p>
+                </div>
+
+                <div class="intro-art">
+                    <img
+                        src="../../assets/cms-hero-illustration.webp"
+                        alt="Student using a laptop with complaint status and notification illustrations">
+                </div>
+
+            </section>
+
+            <!-- Registration card -->
+            <section class="registration-card"
+                     aria-labelledby="registerHeading">
+
+                <div class="card-brand">
+                    <img
+                        src="../../assets/cms-logo.svg"
+                        alt="CMS Logo">
+                </div>
+
+                <h2 id="registerHeading">Register Account</h2>
+
+                <p class="card-subtitle">
+                    Choose your role and fill in the required details.
+                </p>
+
+                <!-- Student / Staff toggle -->
+                <div class="role-switch"
+                     role="group"
+                     aria-label="Register as">
+
+                    <button
+                        class="role-option active"
+                        id="studentRoleButton"
+                        type="button"
+                        data-role="Student"
+                        aria-pressed="true">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true"
+                             focusable="false">
+                            <path d="m2 9 10-5 10 5-10 5L2 9Z"></path>
+                            <path d="M6 11v5c3.5 3 8.5 3 12 0v-5M22 9v6"></path>
+                        </svg>
+
+                        <span>Student</span>
+                    </button>
+
+                    <button
+                        class="role-option"
+                        id="staffRoleButton"
+                        type="button"
+                        data-role="Staff"
+                        aria-pressed="false">
+
+                        <svg viewBox="0 0 24 24"
+                             aria-hidden="true"
+                             focusable="false">
+                            <rect x="3" y="7" width="18" height="13" rx="2"></rect>
+                            <path d="M9 7V4h6v3M3 12h18M10 12v2h4v-2"></path>
+                        </svg>
+
+                        <span>Staff</span>
+                    </button>
+
+                </div>
+
+                <!-- Registration form -->
+                <form id="registerForm" novalidate>
+
+                    <div class="form-fields">
+
+                        <!-- Full name -->
+                        <div class="input-row">
+                            <svg class="field-icon"
+                                 viewBox="0 0 24 24"
+                                 aria-hidden="true">
+                                <circle cx="12" cy="8" r="4"></circle>
+                                <path d="M4 21v-2a8 8 0 0 1 16 0v2Z"></path>
+                            </svg>
+
+                            <label class="visually-hidden" for="name">
+                                Full Name
+                            </label>
+
+                            <input
+                                id="name"
+                                name="name"
+                                type="text"
+                                maxlength="100"
+                                placeholder="Full Name *"
+                                autocomplete="name"
+                                required>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="input-row">
+                            <svg class="field-icon"
+                                 viewBox="0 0 24 24"
+                                 aria-hidden="true">
+                                <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                                <path d="m4 7 8 6 8-6"></path>
+                            </svg>
+
+                            <label class="visually-hidden" for="email">
+                                Email
+                            </label>
+
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                maxlength="150"
+                                placeholder="Email *"
+                                autocomplete="email"
+                                required>
+                        </div>
+
+                        <!-- Student-only: PRN -->
+                        <div class="input-row student-only" id="prnRow">
+                            <svg class="field-icon"
+                                 viewBox="0 0 24 24"
+                                 aria-hidden="true">
+                                <path d="m2 9 10-5 10 5-10 5L2 9Z"></path>
+                                <path d="M6 11v5c3.5 3 8.5 3 12 0v-5M22 9v6"></path>
+                            </svg>
+
+                            <label class="visually-hidden" for="prn">
+                                PRN
+                            </label>
+
+                            <input
+                                id="prn"
+                                name="prn"
+                                type="text"
+                                maxlength="20"
+                                placeholder="PRN *"
+                                autocomplete="off"
+                                required>
+                        </div>
+
+                        <!-- Staff-only: Employee Number -->
+                        <div class="input-row staff-only"
+                             id="employeeNoRow"
+                             hidden>
+
+                            <svg class="field-icon"
+                                 viewBox="0 0 24 24"
+                                 aria-hidden="true">
+                                <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                                <circle cx="9" cy="10" r="2"></circle>
+                                <path d="M5.5 16c.5-2 1.7-3 3.5-3s3 1 3.5 3M15 9h3M15 13h3M15 16h3"></path>
+                            </svg>
+
+                            <label class="visually-hidden"
+                                   for="employee_no">
+                                Employee Number
+                            </label>
+
+                            <input
+                                id="employee_no"
+                                name="employee_no"
+                                type="text"
+                                maxlength="10"
+                                placeholder="Employee Number *"
+                                autocomplete="off">
+                        </div>
+
+                        <!-- Department -->
+                        <div class="input-row">
+                            <svg class="field-icon"
+                                 viewBox="0 0 24 24"
+                                 aria-hidden="true">
+                                <path d="M3 21h18M5 21V5h10v16M15 10h4v11M8 8h4M8 12h4M8 16h4M17 14h1M17 17h1"></path>
+                            </svg>
+
+                            <label class="visually-hidden"
+                                   for="department">
+                                Department
+                            </label>
+
+                            <select
+                                id="department"
+                                name="department_id"
+                                required
+                                disabled>
+                                <option value="">
+                                    Loading departments…
+                                </option>
+                            </select>
+
+                            <span class="select-caret"
+                                  aria-hidden="true">⌄</span>
+                        </div>
+
+                        <!-- Staff-only: Designation -->
+                        <div class="input-row staff-only"
+                             id="designationRow"
+                             hidden>
+
+                            <svg class="field-icon"
+                                 viewBox="0 0 24 24"
+                                 aria-hidden="true">
+                                <rect x="3" y="7" width="18" height="14" rx="2"></rect>
+                                <path d="M8 7V4h8v3M3 12h18M10 12v2h4v-2"></path>
+                            </svg>
+
+                            <label class="visually-hidden"
+                                   for="designation">
+                                Designation
+                            </label>
+
+                            <input
+                                id="designation"
+                                name="designation"
+                                type="text"
+                                maxlength="50"
+                                placeholder="Designation *"
+                                autocomplete="organization-title">
+                        </div>
+
+                        <!-- Password -->
+                        <div class="input-row password-row">
+                            <svg class="field-icon"
+                                 viewBox="0 0 24 24"
+                                 aria-hidden="true">
+                                <rect x="4" y="10" width="16" height="11" rx="2"></rect>
+                                <path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"></path>
+                            </svg>
+
+                            <label class="visually-hidden" for="password">
+                                Password
+                            </label>
+
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                minlength="8"
+                                maxlength="72"
+                                placeholder="Password (min 8 characters) *"
+                                autocomplete="new-password"
+                                required>
+
+                            <button
+                                class="password-toggle"
+                                type="button"
+                                data-target="password"
+                                aria-label="Show password"
+                                aria-pressed="false">
+
+                                <svg viewBox="0 0 24 24"
+                                     aria-hidden="true">
+                                    <path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="input-row password-row">
+                            <svg class="field-icon"
+                                 viewBox="0 0 24 24"
+                                 aria-hidden="true">
+                                <rect x="4" y="10" width="16" height="11" rx="2"></rect>
+                                <path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"></path>
+                            </svg>
+
+                            <label class="visually-hidden"
+                                   for="confirmPassword">
+                                Confirm Password
+                            </label>
+
+                            <input
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                type="password"
+                                minlength="8"
+                                maxlength="72"
+                                placeholder="Confirm Password *"
+                                autocomplete="new-password"
+                                required>
+
+                            <button
+                                class="password-toggle"
+                                type="button"
+                                data-target="confirmPassword"
+                                aria-label="Show confirm password"
+                                aria-pressed="false">
+
+                                <svg viewBox="0 0 24 24"
+                                     aria-hidden="true">
+                                    <path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <!-- Success and error messages -->
+                    <p
+                        id="message"
+                        class="form-message"
+                        role="status"
+                        aria-live="polite"></p>
+
+                    <!-- Submit -->
+                    <button
+                        class="submit-button"
+                        id="registerButton"
+                        type="submit">
+                        Register as Student
+                    </button>
+
+                </form>
+
+                <p class="login-prompt">
+                    Already have an account?
+                    <a href="login.html">Login here</a>
+                </p>
+
+            </section>
+
         </div>
 
-        <form id="registerForm" novalidate>
-          <div class="register-grid">
-            <div class="form-group full">
-              <label for="role">Register as *</label>
-              <select id="role" required>
-                <option value="" selected disabled>Choose Student or Staff</option>
-                <option value="Student">Student</option>
-                <option value="Staff">Staff</option>
-              </select>
-              <p class="field-hint">Admin accounts are not created here. The System Manager can promote eligible Staff members to Admin.</p>
-            </div>
-
-            <div class="form-group full">
-              <label for="name">Full Name *</label>
-              <input type="text" id="name" maxlength="100" placeholder="Enter your full name" autocomplete="name" required />
-            </div>
-
-            <div class="form-group">
-              <label for="email">Email *</label>
-              <input type="email" id="email" maxlength="150" placeholder="Enter your email" autocomplete="email" required />
-            </div>
-            <div class="form-group">
-              <label for="phone">Phone (optional)</label>
-              <input type="tel" id="phone" maxlength="15" placeholder="Mobile number" autocomplete="tel" />
-            </div>
-
-            <div class="form-group full">
-              <label for="department">Department *</label>
-              <select id="department" required>
-                <option value="" selected disabled>Loading departments...</option>
-              </select>
-            </div>
-
-            <div id="studentFields" class="role-fields full" hidden>
-              <div class="register-grid">
-                <div class="form-group">
-                  <label for="prn">PRN *</label>
-                  <input type="text" id="prn" maxlength="20" placeholder="Your PRN number" autocomplete="off" />
-                </div>
-                <div class="form-group">
-                  <label for="course">Course (optional)</label>
-                  <input type="text" id="course" maxlength="100" placeholder="Example: BTech CSE" />
-                </div>
-                <div class="form-group">
-                  <label for="year">Year (optional)</label>
-                  <select id="year">
-                    <option value="">Select year</option>
-                    <option value="1">1</option><option value="2">2</option>
-                    <option value="3">3</option><option value="4">4</option>
-                    <option value="5">5</option><option value="6">6</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="address">Address (optional)</label>
-                  <input type="text" id="address" maxlength="255" placeholder="Your address" autocomplete="street-address" />
-                </div>
-              </div>
-            </div>
-
-            <div id="staffFields" class="role-fields full" hidden>
-              <div class="register-grid">
-                <div class="form-group">
-                  <label for="employee_no">Employee Number *</label>
-                  <input type="text" id="employee_no" maxlength="10" placeholder="Letters and numbers" autocomplete="off" />
-                </div>
-                <div class="form-group">
-                  <label for="designation">Designation *</label>
-                  <input type="text" id="designation" maxlength="50" placeholder="Example: Lecturer" autocomplete="organization-title" />
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="password">Password *</label>
-              <input type="password" id="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" required />
-            </div>
-            <div class="form-group">
-              <label for="confirmPassword">Confirm Password *</label>
-              <input type="password" id="confirmPassword" minlength="8" autocomplete="new-password" placeholder="Re-enter password" required />
-            </div>
-          </div>
-
-          <button type="submit" id="registerButton">Create Account</button>
-          <p id="message" class="message" role="status" aria-live="polite"></p>
-        </form>
-
-        <p class="auth-link">Already have an account? <a href="login.html">Login</a></p>
-      </section>
     </main>
-    <script src="../../JS/auth/register.js"></script>
-  </body>
+
+    <script src="../../JS/auth/register.js" defer></script>
+</body>
 </html>

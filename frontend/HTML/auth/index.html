@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f7bd00" />
+  <meta name="description" content="Report complaints, track progress, and receive updates from your institution with the Complaint Management System." />
+  <title>CMS | Complaint Management System</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/cms-logo.svg" />
+  <link rel="preload" as="image" href="../../assets/cms-hero-illustration.webp" />
+  <link rel="stylesheet" href="../../css/auth/welcome.css" />
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  <main id="mainContent" class="page-frame">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="CMS home">
+        <img src="../../assets/cms-logo.svg" alt="CMS — Complaint Management System" width="270" height="80" />
+      </a>
+
+      <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="siteNav">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="site-nav" id="siteNav" aria-label="Main navigation">
+        <a class="nav-link" href="#about">About</a>
+        <a class="nav-link" href="#how-it-works">How It Works</a>
+        <a class="nav-link" href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="hero-copy">
+        <p class="eyebrow">WELCOME TO</p>
+        <h1 id="heroTitle">
+          <span class="title-line">Complaint</span>
+          <span class="title-line"><span class="accent-text">Management</span> <span>System</span></span>
+        </h1>
+        <span class="title-underline" aria-hidden="true"></span>
+        <p class="hero-description">Your voice matters. Report complaints, track progress, and get updates from your institution in one place.</p>
+
+        <div class="hero-actions">
+          <a class="button button-login" href="login.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8l4 4-4 4M18 12H4M13 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5" /></svg>
+            <span>Login</span>
+          </a>
+          <a class="button button-register" href="register.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="3.5"/><path d="M2.8 20v-2a5.2 5.2 0 0 1 5.2-5.2h2a5.2 5.2 0 0 1 4.1 2"/><path d="M18 14v7M14.5 17.5h7" /></svg>
+            <span>Register</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-label="Student using the complaint management system">
+        <img src="../../assets/cms-hero-illustration.webp" alt="A student using a laptop alongside complaint documents, status checkmarks, and notification icons" width="1536" height="1024" fetchpriority="high" />
+      </div>
+    </section>
+
+    <section class="content-section about-section" id="about" aria-labelledby="aboutTitle">
+      <div class="section-intro">
+        <p class="eyebrow">ABOUT CMS</p>
+        <h2 id="aboutTitle">One place to make your voice heard.</h2>
+        <p>CMS helps students and staff submit complaints, follow progress, and see updates without losing track of what happens next.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3.5h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2Z"/><path d="M7 8h10M7 12h7M7 16h5"/></svg></span>
+          <h3>Easy submission</h3>
+          <p>Submit a complaint through a straightforward form.</p>
+        </article>
+        <article class="feature-card">
+          <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>
+          <h3>Track progress</h3>
+          <p>Check the status and follow the complaint history.</p>
+        </article>
+        <article class="feature-card">
+          <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 8 3v5c0 5-3.4 8.3-8 10-4.6-1.7-8-5-8-10V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg></span>
+          <h3>Role-based access</h3>
+          <p>Student, Staff/HA, and Admin views follow their assigned permissions.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="content-section how-section" id="how-it-works" aria-labelledby="howTitle">
+      <div class="section-intro">
+        <p class="eyebrow">HOW IT WORKS</p>
+        <h2 id="howTitle">A clear path from complaint to response.</h2>
+        <p>Every complaint follows a status-based workflow so the right people can review it.</p>
+      </div>
+      <div class="steps-grid">
+        <article class="step-card">
+          <span class="step-number">01</span>
+          <h3>Submit</h3>
+          <p>Sign in and provide the complaint details and category.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-number">02</span>
+          <h3>Review</h3>
+          <p>The complaint is routed to an active department HA or to Admin review when no HA is available.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-number">03</span>
+          <h3>Track</h3>
+          <p>Follow updates and see the final resolution in your account.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="content-section contact-section" id="contact" aria-labelledby="contactTitle">
+      <div>
+        <p class="eyebrow">GET STARTED</p>
+        <h2 id="contactTitle">Ready to get started?</h2>
+        <p>Log in to follow your complaints, or create a Student or Staff account to begin.</p>
+      </div>
+      <div class="contact-actions">
+        <a class="button button-login" href="login.html">Login</a>
+        <a class="button button-register" href="register.html">Register</a>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="footer-social" aria-label="Social media icons">
+        <span class="social-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14.1 21v-8.2h2.8l.4-3.2h-3.2V7.5c0-.9.3-1.6 1.6-1.6h1.7V3.1c-.3 0-1.4-.1-2.6-.1-2.6 0-4.4 1.6-4.4 4.6v2h-3v3.2h3V21z"/></svg></span>
+        <span class="social-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M22 5.9a8 8 0 0 1-2.4.7 4.2 4.2 0 0 0 1.8-2.3 8.4 8.4 0 0 1-2.7 1 4.2 4.2 0 0 0-7.2 3.8 11.9 11.9 0 0 1-8.6-4.4 4.2 4.2 0 0 0 1.3 5.6 4.1 4.1 0 0 1-1.9-.5v.1a4.2 4.2 0 0 0 3.4 4.1 4.2 4.2 0 0 1-1.9.1 4.2 4.2 0 0 0 3.9 2.9A8.5 8.5 0 0 1 2.5 19a12 12 0 0 0 18.5-10.1v-.5A8.6 8.6 0 0 0 22 5.9z"/></svg></span>
+        <span class="social-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.8" cy="6.5" r=".9" class="fill-dot"/></svg></span>
+        <span class="social-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M23 7.1a2.8 2.8 0 0 0-2-2C19.2 4.6 12 4.6 12 4.6s-7.2 0-9 .5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 .5 12 29 29 0 0 0 1 16.9a2.8 2.8 0 0 0 2 2c1.8.5 9 .5 9 .5s7.2 0 9-.5a2.8 2.8 0 0 0 2-2 29 29 0 0 0 .5-4.9 29 29 0 0 0-.5-4.9z"/><path class="play" d="m9.6 15.7 6.2-3.7-6.2-3.7z"/></svg></span>
+      </div>
+      <p class="copyright">© <span id="currentYear">2026</span> Complaint Management System. All rights reserved.</p>
+    </footer>
+  </main>
+
+  <script src="../../JS/auth/welcome.js" defer></script>
+</body>
+</html>

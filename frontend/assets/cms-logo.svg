@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 100" role="img" aria-labelledby="title">
+  <title id="title">CMS Complaint Management System logo</title>
+  <g transform="translate(4 5)">
+    <path d="M43 0 84 23 43 47 2 23Z" fill="#F5BD00"/>
+    <path d="M2 23 43 47 43 91 2 67Z" fill="#111111"/>
+    <path d="M84 23 43 47 43 91 84 67Z" fill="#111111"/>
+    <path d="M58 52 72 44 72 64 58 72Z" fill="#FFFFFF"/>
+  </g>
+  <text x="103" y="72" font-family="Inter, Arial, sans-serif" font-size="66" font-weight="800" letter-spacing="-3" fill="#111111">C</text>
+  <text x="148" y="72" font-family="Inter, Arial, sans-serif" font-size="66" font-weight="800" letter-spacing="-3" fill="#F5BD00">M</text>
+  <text x="207" y="72" font-family="Inter, Arial, sans-serif" font-size="66" font-weight="800" letter-spacing="-3" fill="#111111">S</text>
+</svg>
