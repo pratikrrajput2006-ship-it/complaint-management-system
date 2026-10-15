@@ -1,2 +1,15 @@
+
+# Environment variables and secrets
 .env
+
+# Backend dependencies
 Backend/node_modules/
+
+# Private complaint attachments
+Backend/private_uploads/
+
+# Local editor settings
+.vscode/
+
+# Local database backups
+backups/
