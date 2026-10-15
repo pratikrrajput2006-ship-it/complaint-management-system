@@ -1,25 +1,46 @@
+
 const express = require("express");
+
 const {
   createStudent,
   getstudentProfile,
   updateStudentProfile,
 } = require("../controller/studentController");
-const { authMiddleware } = require("../middleware/authmiddleware");
-const { rolemiddleware } = require("../middleware/rolemiddleware");
-const { getActiveCategories } = require("../controller/adminController");
+
+const {
+  authMiddleware,
+} = require("../middleware/authmiddleware");
+
+const {
+  rolemiddleware,
+} = require("../middleware/rolemiddleware");
+
+const {
+  getActiveCategories,
+} = require("../controller/adminController");
+
 const {
   createComplaint,
   getMyComplaints,
   getComplaintDetails,
   reopenComplaint,
 } = require("../controller/complaintController");
+
 const {
   createFeedback,
   getMyFeedback,
 } = require("../controller/feedbackController");
+
+const {
+  downloadComplaintAttachment,
+} = require("../controller/attachmentController");
+
 const router = express.Router();
 
+// Student registration
 router.post("/create", createStudent);
+
+// Student dashboard
 router.get(
   "/dashboard",
   authMiddleware,
@@ -29,62 +50,87 @@ router.get(
       message: "Dashbord access successfull",
       user: req.user,
     });
-  },
+  }
 );
+
+// Student profile
 router.get(
   "/profile",
   authMiddleware,
   rolemiddleware("Student"),
-  getstudentProfile,
+  getstudentProfile
 );
+
 router.put(
   "/profile",
   authMiddleware,
   rolemiddleware("Student"),
-  updateStudentProfile,
+  updateStudentProfile
 );
 
-//Admin import data
+// Active categories
 router.get(
   "/categories/active",
   authMiddleware,
   rolemiddleware("Student"),
-  getActiveCategories,
+  getActiveCategories
 );
+
+// Submit complaint
 router.post(
   "/complaints",
   authMiddleware,
   rolemiddleware("Student"),
-  createComplaint,
+  require("../middleware/uploadMiddleware").uploadComplaintAttachment,
+  createComplaint
 );
+
+// Get Student's complaints
 router.get(
   "/complaints",
   authMiddleware,
   rolemiddleware("Student"),
-  getMyComplaints,
+  getMyComplaints
 );
+
+// Download an attachment belonging to the Student's complaint
+router.get(
+  "/complaints/:complaint_id/attachment",
+  authMiddleware,
+  rolemiddleware("Student"),
+  downloadComplaintAttachment
+);
+
+// Get complaint details
 router.get(
   "/complaints/:complaint_id",
   authMiddleware,
   rolemiddleware("Student"),
-  getComplaintDetails,
+  getComplaintDetails
 );
+
+// Submit feedback
 router.post(
   "/complaints/:complaint_id/feedback",
   authMiddleware,
   rolemiddleware("Student"),
-  createFeedback,
+  createFeedback
 );
+
+// Get feedback
 router.get(
   "/complaints/:complaint_id/feedback",
   authMiddleware,
   rolemiddleware("Student"),
-  getMyFeedback,
+  getMyFeedback
 );
+
+// Reopen complaint
 router.patch(
   "/complaints/:complaint_id/reopen",
   authMiddleware,
   rolemiddleware("Student"),
-  reopenComplaint,
+  reopenComplaint
 );
+
 module.exports = router;

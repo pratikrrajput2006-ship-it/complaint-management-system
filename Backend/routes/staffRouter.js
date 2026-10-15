@@ -1,3 +1,4 @@
+
 const express = require("express");
 
 const {
@@ -5,9 +6,18 @@ const {
   getStaffProfile,
   updateStaffProfile,
 } = require("../controller/staffController");
-const { authMiddleware } = require("../middleware/authmiddleware");
-const { rolemiddleware } = require("../middleware/rolemiddleware");
-const { getActiveCategories } = require("../controller/adminController");
+
+const {
+  authMiddleware,
+} = require("../middleware/authmiddleware");
+
+const {
+  rolemiddleware,
+} = require("../middleware/rolemiddleware");
+
+const {
+  getActiveCategories,
+} = require("../controller/adminController");
 
 const {
   createComplaint,
@@ -15,6 +25,7 @@ const {
   getComplaintDetails,
   reopenComplaint,
 } = require("../controller/complaintController");
+
 const {
   getHaComplaints,
   getHaComplaintDetails,
@@ -22,108 +33,185 @@ const {
   resolveByHa,
   escalateByHa,
 } = require("../controller/haController");
+
 const {
   createFeedback,
   getMyFeedback,
 } = require("../controller/feedbackController");
+
+const {
+  uploadComplaintAttachment,
+} = require("../middleware/uploadMiddleware");
+
+const {
+  downloadComplaintAttachment,
+} = require("../controller/attachmentController");
+
 const router = express.Router();
+
+// ======================================================
+// STAFF REGISTRATION AND DASHBOARD
+// ======================================================
 
 router.post("/create", createStaff);
 
-router.get("/dashboard", authMiddleware, rolemiddleware("Staff"), (req, res) => {
-  res.status(200).json({
-    Message: "Dashboard access granted",
-    user: req.user,
-  });
-});
+router.get(
+  "/dashboard",
+  authMiddleware,
+  rolemiddleware("Staff"),
+  (req, res) => {
+    return res.status(200).json({
+      Message: "Dashboard access granted",
+      user: req.user,
+    });
+  }
+);
+
+// ======================================================
+// STAFF PROFILE
+// ======================================================
 
 router.get(
   "/profile",
   authMiddleware,
   rolemiddleware("Staff"),
-  getStaffProfile,
+  getStaffProfile
 );
+
 router.put(
   "/profile",
   authMiddleware,
   rolemiddleware("Staff"),
-  updateStaffProfile,
+  updateStaffProfile
 );
 
+// ======================================================
+// ACTIVE CATEGORIES
+// ======================================================
 
-//admin data gathered
 router.get(
   "/categories/active",
   authMiddleware,
   rolemiddleware("Staff"),
-  getActiveCategories,
+  getActiveCategories
 );
+
+// ======================================================
+// STAFF COMPLAINTS
+// ======================================================
+
+// Submit a complaint with an optional attachment.
 router.post(
   "/complaints",
   authMiddleware,
   rolemiddleware("Staff"),
-  createComplaint,
+  uploadComplaintAttachment,
+  createComplaint
 );
+
+// Get complaints submitted by this Staff member.
 router.get(
   "/complaints",
   authMiddleware,
   rolemiddleware("Staff"),
-  getMyComplaints,
+  getMyComplaints
 );
+
+// Download an attachment from a complaint the Staff
+// member is authorized to access.
+router.get(
+  "/complaints/:complaint_id/attachment",
+  authMiddleware,
+  rolemiddleware("Staff"),
+  downloadComplaintAttachment
+);
+
+// Get complaint details.
 router.get(
   "/complaints/:complaint_id",
   authMiddleware,
   rolemiddleware("Staff"),
-  getComplaintDetails,
+  getComplaintDetails
 );
 
-// Higher Authority (Staff with active HA)
+// ======================================================
+// HIGHER AUTHORITY COMPLAINTS
+// ======================================================
+
 router.get(
   "/ha/complaints",
   authMiddleware,
   rolemiddleware("Staff"),
-  getHaComplaints,
+  getHaComplaints
 );
+
+// Download an attachment from an HA complaint.
+router.get(
+  "/ha/complaints/:complaint_id/attachment",
+  authMiddleware,
+  rolemiddleware("Staff"),
+  downloadComplaintAttachment
+);
+
+// Get HA complaint details.
 router.get(
   "/ha/complaints/:complaint_id",
   authMiddleware,
   rolemiddleware("Staff"),
-  getHaComplaintDetails,
+  getHaComplaintDetails
 );
+
+// Start HA review.
 router.patch(
   "/ha/complaints/:complaint_id/start-review",
   authMiddleware,
   rolemiddleware("Staff"),
-  startHaReview,
+  startHaReview
 );
+
+// Resolve a complaint as HA.
 router.patch(
   "/ha/complaints/:complaint_id/resolve",
   authMiddleware,
   rolemiddleware("Staff"),
-  resolveByHa,
+  resolveByHa
 );
+
+// Escalate a complaint to Admin.
 router.patch(
   "/ha/complaints/:complaint_id/escalate",
   authMiddleware,
   rolemiddleware("Staff"),
-  escalateByHa,
+  escalateByHa
 );
+
+// ======================================================
+// STAFF FEEDBACK
+// ======================================================
+
 router.post(
   "/complaints/:complaint_id/feedback",
   authMiddleware,
   rolemiddleware("Staff"),
-  createFeedback,
+  createFeedback
 );
+
 router.get(
   "/complaints/:complaint_id/feedback",
   authMiddleware,
   rolemiddleware("Staff"),
-  getMyFeedback,
+  getMyFeedback
 );
+
+// ======================================================
+// REOPEN COMPLAINT
+// ======================================================
+
 router.patch(
   "/complaints/:complaint_id/reopen",
   authMiddleware,
   rolemiddleware("Staff"),
-  reopenComplaint,
+  reopenComplaint
 );
+
 module.exports = router;
