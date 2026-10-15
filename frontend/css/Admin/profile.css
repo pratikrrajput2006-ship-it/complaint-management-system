@@ -1,0 +1,59 @@
+/* Admin Profile page — scoped to .profile-page */
+.profile-page { padding-top: 20px; }
+.pg-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+.pg-title { font-size: 38px; line-height: 1.05; font-weight: 900; letter-spacing: -1px; }
+.pg-sub { margin-top: 4px; color: var(--ink-2); font-size: 14.5px; }
+.crumbs { display: flex; gap: 8px; align-items: center; font-size: 13.5px; }
+.crumbs a { color: var(--ink-2); text-decoration: none; }
+.crumbs a:hover { text-decoration: underline; }
+
+.pg-msg { margin-bottom: 16px; padding: 10px 14px; border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); font-weight: 700; font-size: 14px; }
+.pg-msg.success { background: var(--st-green); }
+.pg-msg.error { background: var(--st-coral); }
+
+.pg-grid { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.pg-main, .pg-side { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+
+.hero-card { display: flex; gap: 22px; align-items: center; padding: 22px; background: var(--mint); border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); }
+.hero-avatar { width: 110px; height: 110px; flex-shrink: 0; display: grid; place-items: center; background: var(--ink); color: var(--mint); font-size: 40px; font-weight: 900; border: 2px solid var(--ink); }
+.hero-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.hero-name { font-size: 28px; font-weight: 900; line-height: 1.1; overflow-wrap: anywhere; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 14px; font-weight: 600; }
+.hero-meta span { overflow-wrap: anywhere; }
+.hero-id { font-size: 14px; font-weight: 600; }
+
+.pg-card { background: var(--panel); border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); padding: 18px 20px 20px; min-width: 0; }
+.pg-card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.pg-card-head h2 { font-size: 19px; font-weight: 900; }
+
+.info-row { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--divider); }
+.info-row:last-child { border-bottom: 0; }
+.info-row dt { font-size: 14px; font-weight: 700; }
+.info-row dd { margin: 0; padding: 8px 12px; background: var(--bg); font-size: 14px; font-weight: 500; overflow-wrap: anywhere; min-height: 38px; display: flex; align-items: center; }
+.info-row dd .badge { font-size: 13px; }
+
+.edit-form .info-row dd { padding: 0; background: transparent; }
+.edit-form input { width: 100%; padding: 9px 12px; font-size: 14px; }
+.edit-form input[readonly] { background: var(--bg); color: var(--ink-2); }
+.form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+
+.act-list { display: flex; flex-direction: column; gap: 12px; }
+.act-tile { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 12px 14px; text-align: left; text-decoration: none; color: var(--ink); border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); cursor: pointer; font: inherit; transition: transform .1s ease, box-shadow .1s ease; }
+.act-tile strong { display: block; font-size: 14.5px; font-weight: 800; }
+.act-tile small { font-size: 12.5px; color: var(--ink-2); }
+.act-tile:hover:not(:disabled) { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+.act-tile:active:not(:disabled) { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+.act-tile:disabled { opacity: .55; cursor: not-allowed; }
+.act-mint { background: var(--st-green); }
+.act-purple { background: var(--st-purple); }
+
+@media (max-width: 1100px) { .pg-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 600px) {
+  .pg-title { font-size: 30px; }
+  .hero-card { flex-direction: column; align-items: flex-start; }
+  .hero-avatar { width: 84px; height: 84px; font-size: 30px; }
+  .info-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .form-actions { flex-direction: column-reverse; }
+  .form-actions .btn { width: 100%; }
+}

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 440" role="img" aria-label="Complaint card with a status checkmark, a notification bell and a progress tracker">
+  <g stroke="#171C19" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+    <!-- tracker card (back) -->
+    <rect x="300" y="40" width="220" height="150" fill="#171C19" stroke="none" transform="translate(8 8)"/>
+    <rect x="300" y="40" width="220" height="150" fill="#D9EBFA"/>
+    <path d="M326 76h120M326 100h168M326 124h90" fill="none"/>
+    <circle cx="334" cy="158" r="10" fill="#B9E6D3"/>
+    <circle cx="380" cy="158" r="10" fill="#FBE4C7"/>
+    <circle cx="426" cy="158" r="10" fill="#FFFDF8"/>
+    <path d="M344 158h26M390 158h26" fill="none"/>
+
+    <!-- main complaint card -->
+    <rect x="50" y="110" width="270" height="250" fill="#171C19" stroke="none" transform="translate(10 10)"/>
+    <rect x="50" y="110" width="270" height="250" fill="#FFFDF8"/>
+    <rect x="50" y="110" width="270" height="52" fill="#B9E6D3"/>
+    <path d="M78 136h90" fill="none" stroke-width="6"/>
+    <path d="M80 196h190M80 226h210M80 256h150" fill="none"/>
+    <rect x="80" y="290" width="100" height="40" fill="#FBE4C7"/>
+    <path d="M98 310h64" fill="none"/>
+    <rect x="196" y="290" width="74" height="40" fill="#F9DADD"/>
+
+    <!-- check badge -->
+    <circle cx="318" cy="318" r="50" fill="#171C19" stroke="none" transform="translate(6 6)"/>
+    <circle cx="318" cy="318" r="50" fill="#B9E6D3"/>
+    <path d="M294 318l17 17 32-36" fill="none" stroke-width="8"/>
+
+    <!-- bell -->
+    <rect x="404" y="244" width="110" height="110" fill="#171C19" stroke="none" transform="translate(8 8)"/>
+    <rect x="404" y="244" width="110" height="110" fill="#E8DDF8"/>
+    <path d="M436 322v-26a23 23 0 0 1 46 0v26l8 9h-62z" fill="#FFFDF8"/>
+    <path d="M451 340a8 8 0 0 0 16 0" fill="none"/>
+    <circle cx="486" cy="270" r="11" fill="#F9DADD"/>
+
+    <!-- sparks -->
+    <path d="M40 70l14-14M60 94l22-6M28 44l4-16" fill="none" stroke="#176D55"/>
+  </g>
+</svg>

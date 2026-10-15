@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 100" role="img" aria-labelledby="title">
   <title id="title">CMS Complaint Management System logo</title>
-  <g transform="translate(4 5)">
-    <path d="M43 0 84 23 43 47 2 23Z" fill="#F5BD00"/>
-    <path d="M2 23 43 47 43 91 2 67Z" fill="#111111"/>
-    <path d="M84 23 43 47 43 91 84 67Z" fill="#111111"/>
-    <path d="M58 52 72 44 72 64 58 72Z" fill="#FFFFFF"/>
+  <g transform="translate(4 5)" stroke="#171C19" stroke-width="4" stroke-linejoin="round">
+    <path d="M43 2 82 24 43 46 4 24Z" fill="#B9E6D3"/>
+    <path d="M4 24 43 46 43 89 4 67Z" fill="#171C19"/>
+    <path d="M82 24 43 46 43 89 82 67Z" fill="#176D55"/>
+    <path d="M58 52 70 45 70 63 58 70Z" fill="#FFFDF8" stroke="none"/>
   </g>
-  <text x="103" y="72" font-family="Inter, Arial, sans-serif" font-size="66" font-weight="800" letter-spacing="-3" fill="#111111">C</text>
-  <text x="148" y="72" font-family="Inter, Arial, sans-serif" font-size="66" font-weight="800" letter-spacing="-3" fill="#F5BD00">M</text>
-  <text x="207" y="72" font-family="Inter, Arial, sans-serif" font-size="66" font-weight="800" letter-spacing="-3" fill="#111111">S</text>
+  <text x="103" y="72" font-family="'IBM Plex Sans', Inter, Arial, sans-serif" font-size="66" font-weight="800" letter-spacing="-3" fill="#171C19">C</text>
+  <text x="148" y="72" font-family="'IBM Plex Sans', Inter, Arial, sans-serif" font-size="66" font-weight="800" letter-spacing="-3" fill="#176D55">M</text>
+  <text x="207" y="72" font-family="'IBM Plex Sans', Inter, Arial, sans-serif" font-size="66" font-weight="800" letter-spacing="-3" fill="#171C19">S</text>
 </svg>
