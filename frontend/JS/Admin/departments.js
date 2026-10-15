@@ -1,164 +1,435 @@
-const token = localStorage.getItem("token");
-const user = JSON.parse(localStorage.getItem("user") || "null");
 
-if (!token || !user || user.role !== "Admin") {
-  window.location.href = "../auth/login.html";
-} else {
+(() => {
+  "use strict";
+
+  const token = localStorage.getItem("token");
+
+  let user = null;
+
+  try {
+    user = JSON.parse(localStorage.getItem("user") || "null");
+  } catch {
+    localStorage.removeItem("user");
+  }
+
+  if (!token || !user || user.role !== "Admin") {
+    window.location.href = "../auth/login.html";
+    return;
+  }
+
   const API_BASE = "http://localhost:3000/api/admin/departments";
 
-  // DOM Elements
-  const adminName = document.getElementById("adminName");
-  const logoutButton = document.getElementById("logoutButton");
-  const editDepartmentPanel = document.getElementById("editDepartmentPanel");
+  // DOM elements
+  const editDepartmentPanel = document.getElementById(
+    "editDepartmentPanel",
+  );
   const editPanelOverlay = document.getElementById("editPanelOverlay");
   const editDepartmentId = document.getElementById("editDepartmentId");
-  const editDepartmentName = document.getElementById("editDepartmentName");
+  const editDepartmentName = document.getElementById(
+    "editDepartmentName",
+  );
   const closeEditPanel = document.getElementById("closeEditPanel");
   const cancelEditButton = document.getElementById("cancelEditButton");
   const editDepartmentForm = document.getElementById("editDepartmentForm");
   const departmentForm = document.getElementById("departmentForm");
+  const departmentNameInput = document.getElementById("departmentName");
   const departmentTableBody = document.getElementById("departmentTableBody");
 
-  adminName.textContent = user.name;
+  if (
+    !editDepartmentPanel ||
+    !editPanelOverlay ||
+    !departmentForm ||
+    !editDepartmentForm ||
+    !departmentTableBody ||
+    !departmentNameInput
+  ) {
+    console.error("Department page is missing required HTML elements.");
+    return;
+  }
 
-  logoutButton.addEventListener("click", () => {
-    localStorage.clear();
-    window.location.href = "../auth/login.html";
-  });
+  departmentNameInput.maxLength = 100;
+  editDepartmentName.maxLength = 100;
 
-  // Reusable API Request Wrapper
+  let departments = [];
+  let saving = false;
+
+  /* =========================
+     HELPERS
+  ========================= */
+
+  function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, (character) => {
+      const replacements = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      };
+
+      return replacements[character];
+    });
+  }
+
+  function showMessage(message, type = "success") {
+    // Use the shared Admin toast when available.
+    if (typeof window.showToast === "function") {
+      window.showToast(message, type);
+      return;
+    }
+
+    window.alert(message);
+  }
+
+  function toggleEditPanel(isOpen = false) {
+    editDepartmentPanel.classList.toggle("open", isOpen);
+    editPanelOverlay.hidden = !isOpen;
+    editDepartmentPanel.setAttribute("aria-hidden", String(!isOpen));
+
+    if (isOpen) {
+      editDepartmentName.focus();
+    }
+  }
+
+  function setFormBusy(form, isBusy) {
+    form.querySelectorAll('button[type="submit"]').forEach((button) => {
+      button.disabled = isBusy;
+    });
+  }
+
+  /* =========================
+     API REQUEST
+  ========================= */
+
   async function apiCall(url, method = "GET", body = null) {
     try {
       const options = {
         method,
         headers: {
           Authorization: `Bearer ${token}`,
-          ...(body && { "Content-Type": "application/json" }),
         },
-        ...(body && { body: JSON.stringify(body) }),
       };
 
-      const response = await fetch(url, options);
-      const data = await response.json();
+      if (body !== null) {
+        options.headers["Content-Type"] = "application/json";
+        options.body = JSON.stringify(body);
+      }
 
-      if (!response.ok) {
-        alert(data.Message || "Operation failed.");
+      const response = await fetch(url, options);
+
+      let data = {};
+
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+
+      if (response.status === 401) {
+        localStorage.clear();
+        window.location.href = "../auth/login.html";
         return null;
       }
+
+      if (response.status === 403) {
+        showMessage(
+          data.Message || "You are not allowed to perform this action.",
+          "error",
+        );
+        return null;
+      }
+
+      if (!response.ok) {
+        showMessage(
+          data.Message || "Operation failed. Please try again.",
+          "error",
+        );
+        return null;
+      }
+
       return data;
     } catch (error) {
       console.error(`API Error [${method} ${url}]:`, error);
-      alert("Something went wrong. Please try again.");
+      showMessage("Cannot reach the server. Please try again.", "error");
       return null;
     }
   }
 
-  // Edit Panel Visibility Toggle
-  function toggleEditPanel(isOpen = false) {
-    editDepartmentPanel.classList.toggle("open", isOpen);
-    editPanelOverlay.hidden = !isOpen;
-    editDepartmentPanel.setAttribute("aria-hidden", String(!isOpen));
-  }
+  /* =========================
+     RENDER DEPARTMENTS
+  ========================= */
 
-  [closeEditPanel, cancelEditButton, editPanelOverlay].forEach((el) =>
-    el.addEventListener("click", () => toggleEditPanel(false)),
-  );
-
-     //LOAD & RENDER DEPARTMENTS
-  async function loadDepartment() {
-    const data = await apiCall(API_BASE);
-    if (!data?.Departments) return;
-
-    departmentTableBody.innerHTML = data.Departments.map(
-      (dept) => `
-      <tr>
-        <td>${dept.department_id}</td>
-        <td>${dept.department_name}</td>
-        <td>
-          <span class="department-status ${dept.status === "ACTIVE" ? "status-active" : "status-inactive"}">
-            ${dept.status}
-          </span>
-        </td>
-        <td>
-          <button class="action-button edit-button" data-id="${dept.department_id}" data-name="${dept.department_name}">
-            Edit
-          </button>
-          <button class="action-button status-button" data-id="${dept.department_id}" data-status="${dept.status}">
-            ${dept.status === "ACTIVE" ? "Deactivate" : "Activate"}
-          </button>
-        </td>
-      </tr>
-    `,
-    ).join("");
-  }
-
-
-    // EVENT DELEGATION (TABLE ACTIONS)
-  departmentTableBody.addEventListener("click", async (e) => {
-    const target = e.target;
-
-    // Handle Edit Button Click
-    if (target.classList.contains("edit-button")) {
-      editDepartmentId.value = target.dataset.id;
-      editDepartmentName.value = target.dataset.name;
-      toggleEditPanel(true);
+  function renderDepartments() {
+    if (departments.length === 0) {
+      departmentTableBody.innerHTML = `
+        <tr>
+          <td colspan="4">No departments found.</td>
+        </tr>
+      `;
       return;
     }
 
-    // Handle Status Change Button Click
-    if (target.classList.contains("status-button")) {
-      const { id, status } = target.dataset;
-      const newStatus = status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
-      const actionText = newStatus === "INACTIVE" ? "deactivate" : "activate";
+    departmentTableBody.innerHTML = departments
+      .map((department) => {
+        const id = escapeHtml(department.department_id);
+        const name = escapeHtml(department.department_name);
+        const status = escapeHtml(department.status);
+        const active = department.status === "ACTIVE";
 
-      if (!confirm(`Are you sure you want to ${actionText} this department?`))
+        return `
+          <tr>
+            <td>${id}</td>
+            <td>${name}</td>
+
+            <td>
+              <span class="department-status ${
+                active ? "status-active" : "status-inactive"
+              }">
+                ${status}
+              </span>
+            </td>
+
+            <td>
+              <button
+                type="button"
+                class="action-button edit-button"
+                data-id="${id}"
+              >
+                Edit
+              </button>
+
+              <button
+                type="button"
+                class="action-button status-button"
+                data-id="${id}"
+                data-status="${status}"
+              >
+                ${active ? "Deactivate" : "Activate"}
+              </button>
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+  }
+
+  async function loadDepartments() {
+    departmentTableBody.innerHTML = `
+      <tr>
+        <td colspan="4">Loading departments...</td>
+      </tr>
+    `;
+
+    const data = await apiCall(API_BASE);
+
+    if (!data) {
+      departmentTableBody.innerHTML = `
+        <tr>
+          <td colspan="4">Unable to load departments. Please try again.</td>
+        </tr>
+      `;
+      return;
+    }
+
+    if (!Array.isArray(data.Departments)) {
+      departmentTableBody.innerHTML = `
+        <tr>
+          <td colspan="4">Invalid department data received.</td>
+        </tr>
+      `;
+      return;
+    }
+
+    departments = data.Departments;
+    renderDepartments();
+  }
+
+  /* =========================
+     EDIT PANEL
+  ========================= */
+
+  function openEditPanel(department) {
+    editDepartmentId.value = department.department_id;
+    editDepartmentName.value = department.department_name;
+
+    toggleEditPanel(true);
+  }
+
+  function closeEdit() {
+    toggleEditPanel(false);
+  }
+
+  [closeEditPanel, cancelEditButton, editPanelOverlay].forEach((element) => {
+    if (element) {
+      element.addEventListener("click", closeEdit);
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeEdit();
+    }
+  });
+
+  /* =========================
+     TABLE ACTIONS
+  ========================= */
+
+  departmentTableBody.addEventListener("click", async (event) => {
+    const editButton = event.target.closest(".edit-button");
+    const statusButton = event.target.closest(".status-button");
+
+    if (editButton) {
+      const department = departments.find(
+        (item) => item.department_id === editButton.dataset.id,
+      );
+
+      if (!department) {
+        showMessage("Department not found. Refresh the page.", "error");
         return;
+      }
 
-      const res = await apiCall(`${API_BASE}/${id}/status`, "PATCH", {
-        status: newStatus,
-      });
-      if (res) {
-        alert(res.Message || "Department status updated successfully.");
-        loadDepartment();
+      openEditPanel(department);
+      return;
+    }
+
+    if (statusButton) {
+      const { id, status } = statusButton.dataset;
+
+      if (status !== "ACTIVE" && status !== "INACTIVE") {
+        showMessage("Invalid department status.", "error");
+        return;
+      }
+
+      const newStatus = status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+      const action = newStatus === "INACTIVE" ? "deactivate" : "activate";
+
+      const confirmed = window.confirm(
+        `Are you sure you want to ${action} this department?`,
+      );
+
+      if (!confirmed) return;
+
+      statusButton.disabled = true;
+
+      const result = await apiCall(
+        `${API_BASE}/${encodeURIComponent(id)}/status`,
+        "PATCH",
+        { status: newStatus },
+      );
+
+      if (result) {
+        showMessage(
+          result.Message || "Department status updated successfully.",
+        );
+        await loadDepartments();
+      } else {
+        statusButton.disabled = false;
       }
     }
   });
 
-    // ADD DEPARTMENT
-  departmentForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const departmentName = document
-      .getElementById("departmentName")
-      .value.trim();
-    if (!departmentName) return;
+  /* =========================
+     ADD DEPARTMENT
+  ========================= */
 
-    const res = await apiCall(API_BASE, "POST", {
-      Department_name: departmentName,
-    });
-    if (res) {
-      alert(res.Message || "Department created successfully.");
-      departmentForm.reset();
-      loadDepartment();
+  departmentForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    if (saving) return;
+
+    const departmentName = departmentNameInput.value.trim();
+
+    if (!departmentName) {
+      showMessage("Enter a department name.", "error");
+      departmentNameInput.focus();
+      return;
+    }
+
+    if (departmentName.length > 100) {
+      showMessage(
+        "Department name must not exceed 100 characters.",
+        "error",
+      );
+      return;
+    }
+
+    saving = true;
+    setFormBusy(departmentForm, true);
+
+    try {
+      const result = await apiCall(API_BASE, "POST", {
+        Department_name: departmentName,
+      });
+
+      if (result) {
+        showMessage(
+          result.Message || "Department created successfully.",
+        );
+
+        departmentForm.reset();
+        await loadDepartments();
+      }
+    } finally {
+      saving = false;
+      setFormBusy(departmentForm, false);
     }
   });
 
-    // EDIT DEPARTMENT
-  editDepartmentForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  /* =========================
+     UPDATE DEPARTMENT
+  ========================= */
+
+  editDepartmentForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    if (saving) return;
+
     const id = editDepartmentId.value;
     const departmentName = editDepartmentName.value.trim();
-    if (!departmentName) return;
 
-    const res = await apiCall(`${API_BASE}/${id}`, "PUT", {
-      department_name: departmentName,
-    });
-    if (res) {
-      alert(res.Message || "Department updated successfully.");
-      toggleEditPanel(false);
-      loadDepartment();
+    if (!id || !departmentName) {
+      showMessage("Enter a valid department name.", "error");
+      return;
+    }
+
+    if (departmentName.length > 100) {
+      showMessage(
+        "Department name must not exceed 100 characters.",
+        "error",
+      );
+      return;
+    }
+
+    saving = true;
+    setFormBusy(editDepartmentForm, true);
+
+    try {
+      const result = await apiCall(
+        `${API_BASE}/${encodeURIComponent(id)}`,
+        "PUT",
+        {
+          department_name: departmentName,
+        },
+      );
+
+      if (result) {
+        showMessage(
+          result.Message || "Department updated successfully.",
+        );
+
+        closeEdit();
+        await loadDepartments();
+      }
+    } finally {
+      saving = false;
+      setFormBusy(editDepartmentForm, false);
     }
   });
 
-  // Initial Data Fetch
-  loadDepartment();
-}
+  /* =========================
+     INITIAL LOAD
+  ========================= */
+
+  loadDepartments();
+})();

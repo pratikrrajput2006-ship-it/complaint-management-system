@@ -1,107 +1,172 @@
+
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#B9E6D3" />
     <title>Admin Dashboard - CMS</title>
     <link rel="stylesheet" href="../../css/Admin/admin-common.css" />
+    <link rel="stylesheet" href="../../css/Admin/dashboard.css" />
   </head>
 
   <body>
-    <header class="dashboard-header">
-      <div class="logo-area">
-        <h1>CMS</h1>
-        <span>Complaint Management System</span>
-      </div>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar" aria-label="Admin navigation">
+        <a class="sidebar-brand" href="dashboard.html" aria-label="CMS Dashboard">
+          <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4l18 10v20L24 44 6 34V14z" fill="#B9E6D3" stroke="#171C19" stroke-width="3" stroke-linejoin="round"/><path d="M6 14l18 10 18-10M24 24v20" fill="none" stroke="#171C19" stroke-width="3" stroke-linejoin="round"/></svg>
+          <span class="brand-text"><strong>CMS</strong><small>Complaint<br>Management System</small></span>
+        </a>
 
-      <div class="admin-area">
-        <span id="adminName"></span>
-        <button id="logoutButton" type="button">Logout</button>
-      </div>
-    </header>
-
-    <div class="dashboard-layout">
-      <aside class="sidebar">
-        <nav class="sidebar-nav">
-          <a href="dashboard.html" class="nav-link active">Dashboard</a>
-          <a href="departments.html" class="nav-link">Departments</a>
-          <a href="authority.html" class="nav-link">Higher Authority</a>
-          <a href="categories.html" class="nav-link">Categories</a>
-          <a href="complaints.html" class="nav-link">Complaints</a>
-          <a href="feedback.html" class="nav-link">Feedback</a>
-          <a href="users.html" class="nav-link">Users</a>
-          <a href="notifications.html" class="nav-link">Notifications <span class="nav-badge" id="notifBadge" hidden></span></a>
+        <nav class="sidebar-nav" aria-label="Main">
+          <a href="dashboard.html" class="nav-link active" aria-current="page"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span class="nav-text">Dashboard</span></a>
+          <a href="complaints.html?status=ALL" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span class="nav-text">Complaints</span></a>
+          <a href="departments.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16"/><path d="M14 10h5a1 1 0 0 1 1 1v10"/><path d="M8 8h2M8 12h2M8 16h2M3 21h18"/></svg><span class="nav-text">Departments</span></a>
+          <a href="authority.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg><span class="nav-text">Higher Authority</span></a>
+          <a href="users.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.4c2.2.7 3.5 2.6 3.5 5.6"/></svg><span class="nav-text">Users</span></a>
+          <a href="categories.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.3"/></svg><span class="nav-text">Categories</span></a>
+          <a href="feedback.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span class="nav-text">Feedback</span></a>
         </nav>
+
+        <div class="sidebar-divider" role="presentation"></div>
+
+        <nav class="sidebar-nav sidebar-secondary" aria-label="Secondary">
+          <a href="notifications.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg><span class="nav-text">Notifications</span><span class="nav-badge" id="notifBadge" hidden></span></a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="sidebar-profile">
+            <span class="sp-avatar" id="sidebarAvatar" aria-hidden="true"></span>
+            <span class="sp-text" id="sidebarAdmin"></span>
+            <button class="sp-logout" id="logoutButton" type="button" aria-label="Log out" title="Log out">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+            </button>
+          </div>
+        </div>
       </aside>
 
-      <main class="main-content">
-        <section class="welcome-section">
-          <h2>Admin Dashboard</h2>
-          <p id="welcomeMessage">Welcome, Admin</p>
-        </section>
+      <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-        <div class="alert-box" id="attentionBox" hidden>
-          <span id="attentionText"></span>
-          <a class="btn btn-primary btn-sm" href="complaints.html">Review Now</a>
-        </div>
+      <div class="app-body">
+        <header class="topbar">
+          <button class="icon-btn" id="menuToggle" type="button" aria-label="Toggle navigation" aria-controls="sidebar">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          </button>
 
-        <section class="dashboard-summary">
-          <div class="summary-card">
-            <h3>Total Complaints</h3>
-            <p id="totalComplaints">--</p>
-          </div>
-          <div class="summary-card">
-            <h3>Pending Complaints</h3>
-            <p id="pendingComplaints">--</p>
-          </div>
-          <div class="summary-card">
-            <h3>Resolved Complaints</h3>
-            <p id="resolvedComplaints">--</p>
-          </div>
-          <div class="summary-card">
-            <h3>Awaiting Admin</h3>
-            <p id="escalatedComplaints">--</p>
-          </div>
-        </section>
+          <form class="topbar-search" id="topSearch" role="search">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input type="search" id="topSearchInput" placeholder="Search complaints..." aria-label="Search complaints" autocomplete="off" />
+            <kbd class="kbd-hint" aria-hidden="true">Ctrl + K</kbd>
+          </form>
 
-        <section class="dashboard-summary">
-          <div class="summary-card">
-            <h3>Students</h3>
-            <p id="totalStudents">--</p>
+          <div class="topbar-right">
+            <a class="bell" href="notifications.html" aria-label="Notifications">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+              <span class="bell-badge" id="bellBadge" hidden></span>
+            </a>
+            <div class="admin-area"><span id="adminName"></span></div>
           </div>
-          <div class="summary-card">
-            <h3>Staff</h3>
-            <p id="totalStaff">--</p>
-          </div>
-          <div class="summary-card">
-            <h3>Higher Authorities</h3>
-            <p id="totalHA">--</p>
-          </div>
-          <div class="summary-card">
-            <h3>Average Feedback</h3>
-            <p id="avgFeedback">--</p>
-          </div>
-        </section>
+        </header>
 
-        <section class="analytics-section">
-          <div class="analytics-card">
-            <h3>Complaints Overview</h3>
-            <div id="statusBars"></div>
+        <main class="main-content dashboard-page" id="mainContent">
+          <div class="dash-head">
+            <div>
+              <h1 class="dash-title">Dashboard</h1>
+              <p class="dash-sub">Welcome back, <span id="welcomeName">Admin</span>! Here's an overview of your complaint management system.</p>
+            </div>
+            <div class="dash-clock" aria-live="off">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+              <div><strong id="clockDate">--</strong><span id="clockTime">--</span></div>
+            </div>
           </div>
 
-          <div class="analytics-card">
-            <h3>Complaints by Department</h3>
-            <div id="departmentBars"></div>
+          <div class="alert-box" id="attentionBox" hidden role="status">
+            <span id="attentionText"></span>
+            <a class="btn btn-primary btn-sm" href="complaints.html?status=ALL">Review Queue</a>
           </div>
-        </section>
 
-        <section class="recent-complaints">
-          <h3>Recent Complaints</h3>
-          <div id="recentComplaints"><div class="empty">Loading...</div></div>
-          <p style="margin-top:16px"><a class="link" href="complaints.html?status=ALL">View all complaints &rarr;</a></p>
-        </section>
+          <section class="stat-row" aria-label="Complaint statistics">
+            <article class="stat-tile">
+              <span class="stat-sq sq-mint"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span>
+              <div><h2>Total Complaints</h2><p id="totalComplaints">--</p></div>
+            </article>
+            <article class="stat-tile">
+              <span class="stat-sq sq-amber"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+              <div><h2>Pending Review</h2><p id="pendingComplaints">--</p></div>
+            </article>
+            <article class="stat-tile">
+              <span class="stat-sq sq-green"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6"/></svg></span>
+              <div><h2>Resolved</h2><p id="resolvedComplaints">--</p></div>
+            </article>
+            <article class="stat-tile">
+              <span class="stat-sq sq-coral"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L2 20h20z"/><path d="M12 10v5M12 17.5v.5"/></svg></span>
+              <div><h2>Escalated</h2><p id="escalatedComplaints">--</p></div>
+            </article>
+          </section>
 
-      </main>
+          <section class="dash-grid">
+            <div class="dash-left">
+              <article class="panel-card">
+                <header class="panel-card-head">
+                  <div>
+                    <h2><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg> Complaint Status Overview</h2>
+                    <p>Current number of complaints in each status.</p>
+                  </div>
+                </header>
+                <div id="statusChart" class="status-chart" role="img" aria-label="Bar chart of complaints by status">
+                  <div class="empty">Loading...</div>
+                </div>
+              </article>
+
+              <article class="panel-card">
+                <header class="panel-card-head">
+                  <div>
+                    <h2><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg> Recent Complaints</h2>
+                    <p>Latest complaints in the Admin queue.</p>
+                  </div>
+                  <a class="view-all" href="complaints.html?status=ALL">View All &rarr;</a>
+                </header>
+                <div id="recentComplaints"><div class="empty">Loading...</div></div>
+              </article>
+            </div>
+
+            <div class="dash-right">
+              <article class="panel-card">
+                <header class="panel-card-head">
+                  <div>
+                    <h2><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/></svg> Department-wise Complaints</h2>
+                    <p>Distribution of complaints across departments.</p>
+                  </div>
+                </header>
+                <div class="donut-wrap">
+                  <div class="donut" id="statusDonut" role="img" aria-label="Doughnut chart of complaints by department">
+                    <div class="donut-center">
+                      <strong id="donutTotal">0</strong>
+                      <span>Total</span>
+                    </div>
+                  </div>
+                  <ul class="legend" id="donutLegend"></ul>
+                </div>
+              </article>
+
+              <article class="panel-card">
+                <header class="panel-card-head">
+                  <div>
+                    <h2><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg> Quick Actions</h2>
+                    <p>Perform common administrative tasks.</p>
+                  </div>
+                </header>
+                <div class="qa-grid">
+                  <a class="qa-tile qa-mint" href="complaints.html?status=ALL"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>View Complaints</span><b aria-hidden="true">&rarr;</b></a>
+                  <a class="qa-tile qa-amber" href="departments.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16"/><path d="M14 10h5a1 1 0 0 1 1 1v10"/><path d="M8 8h2M8 12h2M8 16h2M3 21h18"/></svg><span>Manage Departments</span><b aria-hidden="true">&rarr;</b></a>
+                  <a class="qa-tile qa-coral" href="users.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.4c2.2.7 3.5 2.6 3.5 5.6"/></svg><span>Manage Users</span><b aria-hidden="true">&rarr;</b></a>
+                  <a class="qa-tile qa-purple" href="feedback.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span>View Feedback</span><b aria-hidden="true">&rarr;</b></a>
+                </div>
+              </article>
+            </div>
+          </section>
+        </main>
+      </div>
     </div>
 
     <script src="../../JS/Admin/admin-common.js"></script>

@@ -1,89 +1,177 @@
+
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#B9E6D3" />
     <title>User Management - CMS</title>
+
     <link rel="stylesheet" href="../../css/Admin/admin-common.css" />
   </head>
 
   <body>
-    <header class="dashboard-header">
-      <div class="logo-area">
-        <h1>CMS</h1>
-        <span>Complaint Management System</span>
-      </div>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar" aria-label="Admin navigation">
+        <a class="sidebar-brand" href="dashboard.html" aria-label="CMS Dashboard">
+          <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4l18 10v20L24 44 6 34V14z" fill="#B9E6D3" stroke="#171C19" stroke-width="3" stroke-linejoin="round"/><path d="M6 14l18 10 18-10M24 24v20" fill="none" stroke="#171C19" stroke-width="3" stroke-linejoin="round"/></svg>
+          <span class="brand-text"><strong>CMS</strong><small>Complaint<br>Management System</small></span>
+        </a>
 
-      <div class="admin-area">
-        <span id="adminName"></span>
-        <button id="logoutButton" type="button">Logout</button>
-      </div>
-    </header>
-
-    <div class="dashboard-layout">
-      <aside class="sidebar">
-        <nav class="sidebar-nav">
-          <a href="dashboard.html" class="nav-link">Dashboard</a>
-          <a href="departments.html" class="nav-link">Departments</a>
-          <a href="authority.html" class="nav-link">Higher Authority</a>
-          <a href="categories.html" class="nav-link">Categories</a>
-          <a href="complaints.html" class="nav-link">Complaints</a>
-          <a href="feedback.html" class="nav-link">Feedback</a>
-          <a href="users.html" class="nav-link active">Users</a>
-          <a href="notifications.html" class="nav-link">Notifications <span class="nav-badge" id="notifBadge" hidden></span></a>
+        <nav class="sidebar-nav" aria-label="Main">
+          <a href="dashboard.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span class="nav-text">Dashboard</span></a>
+          <a href="complaints.html?status=ALL" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span class="nav-text">Complaints</span></a>
+          <a href="departments.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16"/><path d="M14 10h5a1 1 0 0 1 1 1v10"/><path d="M8 8h2M8 12h2M8 16h2M3 21h18"/></svg><span class="nav-text">Departments</span></a>
+          <a href="authority.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg><span class="nav-text">Higher Authority</span></a>
+          <a href="users.html" class="nav-link active" aria-current="page"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.4c2.2.7 3.5 2.6 3.5 5.6"/></svg><span class="nav-text">Users</span></a>
+          <a href="categories.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.3"/></svg><span class="nav-text">Categories</span></a>
+          <a href="feedback.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span class="nav-text">Feedback</span></a>
         </nav>
+
+        <div class="sidebar-divider" role="presentation"></div>
+
+        <nav class="sidebar-nav sidebar-secondary" aria-label="Secondary">
+          <a href="notifications.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg><span class="nav-text">Notifications</span><span class="nav-badge" id="notifBadge" hidden></span></a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="sidebar-profile">
+            <span class="sp-avatar" id="sidebarAvatar" aria-hidden="true"></span>
+            <span class="sp-text" id="sidebarAdmin"></span>
+            <button class="sp-logout" id="logoutButton" type="button" aria-label="Log out" title="Log out">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+            </button>
+          </div>
+        </div>
       </aside>
 
-      <main class="main-content">
-        <section class="welcome-section">
-          <h2>User Management</h2>
-          <p>View all students, staff and admins. The System Manager (ADM001) can promote eligible active Staff members who are not active HAs and have no active complaint assignments.</p>
-        </section>
+      <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-        <section class="dashboard-summary">
-          <div class="summary-card">
-            <h3>Total Users</h3>
-            <p id="totalUsers">--</p>
-          </div>
-          <div class="summary-card">
-            <h3>Students</h3>
-            <p id="totalStudents">--</p>
-          </div>
-          <div class="summary-card">
-            <h3>Staff</h3>
-            <p id="totalStaff">--</p>
-          </div>
-          <div class="summary-card">
-            <h3>Admins</h3>
-            <p id="totalAdmins">--</p>
-          </div>
-        </section>
+      <div class="app-body">
+        <header class="topbar">
+          <button class="icon-btn" id="menuToggle" type="button" aria-label="Toggle navigation" aria-controls="sidebar">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          </button>
 
-        <section class="card">
-          <div class="tabs">
-            <button type="button" class="tab active" data-role="">All</button>
-            <button type="button" class="tab" data-role="Student">Students</button>
-            <button type="button" class="tab" data-role="Staff">Staff</button>
-            <button type="button" class="tab" data-role="Admin">Admins</button>
+          <form class="topbar-search" id="topSearch" role="search">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input type="search" id="topSearchInput" placeholder="Search complaints..." aria-label="Search complaints" autocomplete="off" />
+            <kbd class="kbd-hint" aria-hidden="true">Ctrl + K</kbd>
+          </form>
+
+          <div class="topbar-right">
+            <a class="bell" href="notifications.html" aria-label="Notifications">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+              <span class="bell-badge" id="bellBadge" hidden></span>
+            </a>
+            <div class="admin-area"><span id="adminName"></span></div>
           </div>
-          <div class="toolbar">
-            <div class="form-group">
-              <label for="searchInput">Search</label>
-              <input type="search" id="searchInput" placeholder="ID, name, email, PRN or employee no" />
+        </header>
+
+        <main class="main-content">
+          <section class="welcome-section">
+            <h2>User Management</h2>
+            <p>
+              Manage user accounts while protecting personal information.
+              Only necessary account information is displayed. ADM001 can
+              promote eligible Staff members to Admin.
+            </p>
+          </section>
+
+          <section class="dashboard-summary">
+            <div class="summary-card">
+              <h3>Total Users</h3>
+              <p id="totalUsers">--</p>
             </div>
-          </div>
-          <p class="result-count" id="resultCount"></p>
-          <div class="table-wrapper">
-            <table class="data-table">
-              <thead>
-                <tr><th>User ID</th><th>Name</th><th>Email</th><th>Role</th><th>PRN / Employee No</th><th>Department</th><th>HA</th><th>Status</th><th>Actions</th></tr>
-              </thead>
-              <tbody id="userTableBody"></tbody>
-            </table>
-          </div>
-        </section>
 
-      </main>
+            <div class="summary-card">
+              <h3>Students</h3>
+              <p id="totalStudents">--</p>
+            </div>
+
+            <div class="summary-card">
+              <h3>Staff</h3>
+              <p id="totalStaff">--</p>
+            </div>
+
+            <div class="summary-card">
+              <h3>Admins</h3>
+              <p id="totalAdmins">--</p>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="tabs">
+              <button
+                type="button"
+                class="tab active"
+                data-role=""
+              >
+                All
+              </button>
+
+              <button
+                type="button"
+                class="tab"
+                data-role="Student"
+              >
+                Students
+              </button>
+
+              <button
+                type="button"
+                class="tab"
+                data-role="Staff"
+              >
+                Staff
+              </button>
+
+              <button
+                type="button"
+                class="tab"
+                data-role="Admin"
+              >
+                Admins
+              </button>
+            </div>
+
+            <div class="toolbar">
+              <div class="form-group">
+                <label for="searchInput">Search Accounts</label>
+                <input
+                  type="search"
+                  id="searchInput"
+                  placeholder="Search by user ID, role, department or status"
+                  autocomplete="off"
+                />
+              </div>
+            </div>
+
+            <p class="result-count" id="resultCount"></p>
+
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>User ID</th>
+                    <th>Role</th>
+                    <th>Department</th>
+                    <th>HA Status</th>
+                    <th>Account Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody id="userTableBody">
+                  <tr>
+                    <td colspan="6">Loading users...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
     </div>
 
     <script src="../../JS/Admin/admin-common.js"></script>
