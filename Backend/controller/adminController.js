@@ -112,11 +112,12 @@ async function updateAdminProfile(req, res) {
     }
   }
 }
+
 async function verifyStaffForHA(req, res) {
   const { staff_id } = req.params;
 
   try {
-    if (!staff_id) {
+    if (!staff_id || !staff_id.trim()) {
       return res.status(400).json({
         Message: "Staff ID is required",
       });
@@ -124,48 +125,48 @@ async function verifyStaffForHA(req, res) {
 
     const [rows] = await pool.query(
       `SELECT
-        staff.staff_id AS user_id,
-        user.name,
-        staff.employee_no,
-        staff.designation,
-
-        staff.department_id AS own_department_id,
-        own_department.department_name AS own_department_name,
-
-        staff.ha_status,
-
-        ha_history.department_id AS ha_department_id,
-        ha_department.department_name AS ha_department_name
-
-      FROM staff
-
-      JOIN user
-        ON staff.staff_id = user.user_id
-
-      JOIN department AS own_department
-        ON staff.department_id = own_department.department_id
-
-      LEFT JOIN ha_history
-        ON staff.staff_id = ha_history.staff_id
-       AND ha_history.status = 'ACTIVE'
-
-      LEFT JOIN department AS ha_department
-        ON ha_history.department_id = ha_department.department_id
-
-      WHERE staff.staff_id = ?
-        AND user.role = 'Staff'`,
-      [staff_id],
+          s.staff_id AS user_id,
+          s.designation,
+          s.department_id AS own_department_id,
+          own_department.department_name AS own_department_name,
+          s.ha_status,
+          u.role,
+          u.status AS user_status,
+          ha_history.department_id AS ha_department_id,
+          ha_department.department_name AS ha_department_name
+       FROM staff s
+       INNER JOIN user u
+         ON s.staff_id = u.user_id
+       INNER JOIN department AS own_department
+         ON s.department_id = own_department.department_id
+       LEFT JOIN ha_history
+         ON s.staff_id = ha_history.staff_id
+        AND ha_history.status = 'ACTIVE'
+       LEFT JOIN department AS ha_department
+         ON ha_history.department_id = ha_department.department_id
+       WHERE s.staff_id = ?
+         AND u.role = 'Staff'`,
+      [staff_id.trim()],
     );
 
     if (rows.length === 0) {
       return res.status(404).json({
-        Message: "Staff not found",
+        Message: "Staff account not found",
       });
     }
 
+    const staff = rows[0];
+
+    const eligible =
+      staff.user_status === "ACTIVE" &&
+      staff.ha_status !== "ACTIVE";
+
     return res.status(200).json({
       Message: "Staff verified successfully",
-      Staff: rows[0],
+      Staff: {
+        ...staff,
+        eligible_for_ha: eligible,
+      },
     });
   } catch (error) {
     console.error("Failed to verify Staff:", error.message);
@@ -175,6 +176,7 @@ async function verifyStaffForHA(req, res) {
     });
   }
 }
+
 async function assignHA(req, res) {
   const { staff_id, department_id, remark } = req.body;
   const admin_id = req.user.user_id;
@@ -205,10 +207,14 @@ async function assignHA(req, res) {
       return res.status(404).json({ Message: "Staff does not exist" });
     }
 
-    if (staffRows[0].role !== "Staff" || staffRows[0].user_status !== "ACTIVE") {
+    if (
+      staffRows[0].role !== "Staff" ||
+      staffRows[0].user_status !== "ACTIVE"
+    ) {
       await connection.rollback();
       return res.status(409).json({
-        Message: "Only active, ordinary Staff accounts can be assigned as an HA",
+        Message:
+          "Only active, ordinary Staff accounts can be assigned as an HA",
       });
     }
 
@@ -295,8 +301,7 @@ async function assignHA(req, res) {
       );
       if (!updateResult || updateResult.affectedRows !== 1) continue;
 
-      const trackerRemark =
-        `An active Higher Authority was assigned to department ${department_id}; complaint moved from Admin queue to HA queue`;
+      const trackerRemark = `An active Higher Authority was assigned to department ${department_id}; complaint moved from Admin queue to HA queue`;
       await connection.query(
         `INSERT INTO complaint_tracker
          (complaint_id, previous_status, status, updated_by, action_type, remark)
@@ -475,6 +480,7 @@ async function removeHA(req, res) {
     }
   }
 }
+
 async function history_HA(req, res) {
   const { staff_id } = req.params;
 
@@ -489,7 +495,6 @@ async function history_HA(req, res) {
 
     connection = await pool.getConnection();
 
-    // Check Staff exists
     const [staffRows] = await connection.query(
       `SELECT staff_id
        FROM staff
@@ -503,28 +508,23 @@ async function history_HA(req, res) {
       });
     }
 
-    // Get complete HA history
+    // Return assignment history without Admin names.
     const [historyRows] = await connection.query(
       `SELECT
-          ha_history.history_id,
-          ha_history.staff_id,
-          ha_history.department_id,
-          department.department_name,
-          ha_history.assigned_by,
-          user.name AS assigned_by_name,
-          ha_history.assigned_at,
-          ha_history.ended_at,
-          ha_history.status,
-          ha_history.remark
-       FROM ha_history
-       JOIN department
-         ON ha_history.department_id = department.department_id
-       JOIN admin
-         ON ha_history.assigned_by = admin.admin_id
-       JOIN user
-         ON admin.admin_id = user.user_id
-       WHERE ha_history.staff_id = ?
-       ORDER BY ha_history.assigned_at DESC`,
+          h.history_id,
+          h.staff_id,
+          h.department_id,
+          d.department_name,
+          h.assigned_by,
+          h.assigned_at,
+          h.ended_at,
+          h.status,
+          h.remark
+       FROM ha_history h
+       JOIN department d
+         ON h.department_id = d.department_id
+       WHERE h.staff_id = ?
+       ORDER BY h.assigned_at DESC`,
       [staff_id],
     );
 
@@ -1195,10 +1195,7 @@ async function updateCategory(req, res) {
       [departmentId],
     );
 
-    if (
-      departmentRows.length === 0 ||
-      departmentRows[0].status !== "ACTIVE"
-    ) {
+    if (departmentRows.length === 0 || departmentRows[0].status !== "ACTIVE") {
       await connection.rollback();
 
       return res.status(409).json({
@@ -1250,10 +1247,7 @@ async function updateCategory(req, res) {
       try {
         await connection.rollback();
       } catch (rollbackError) {
-        console.error(
-          "Category rollback failed:",
-          rollbackError.message,
-        );
+        console.error("Category rollback failed:", rollbackError.message);
       }
     }
 
@@ -1289,5 +1283,5 @@ module.exports = {
   updateCategoryStatus,
   getActiveCategories,
   getAllCategories,
-  updateCategory
+  updateCategory,
 };

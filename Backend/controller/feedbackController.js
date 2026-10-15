@@ -1,4 +1,9 @@
+
 const pool = require("../config/db");
+
+/* =========================
+   CREATE FEEDBACK
+========================= */
 
 async function createFeedback(req, res) {
   const user_id = req.user.user_id;
@@ -10,7 +15,9 @@ async function createFeedback(req, res) {
       Message: "Rating is required",
     });
   }
+
   const rating_number = Number(rating);
+
   if (
     !Number.isInteger(rating_number) ||
     rating_number < 1 ||
@@ -20,6 +27,7 @@ async function createFeedback(req, res) {
       Message: "Rating must be a whole number from 1 to 5",
     });
   }
+
   if (comment && comment.length > 500) {
     return res.status(400).json({
       Message: "Comment must be at most 500 characters",
@@ -27,6 +35,7 @@ async function createFeedback(req, res) {
   }
 
   let connection;
+
   try {
     connection = await pool.getConnection();
     await connection.beginTransaction();
@@ -35,35 +44,42 @@ async function createFeedback(req, res) {
       `SELECT status
        FROM complaint
        WHERE complaint_id = ?
-       AND submitted_by = ?`,
+         AND submitted_by = ?`,
       [complaint_id, user_id],
     );
+
     if (complaint_rows.length === 0) {
       await connection.rollback();
-      connection.release();
+
       return res.status(404).json({
         Message: "Complaint not found",
       });
     }
+
     if (
-      !["RESOLVED_BY_HA", "RESOLVED_BY_ADMIN", "REJECTED_BY_ADMIN"].includes(
-        complaint_rows[0].status,
-      )
+      ![
+        "RESOLVED_BY_HA",
+        "RESOLVED_BY_ADMIN",
+        "REJECTED_BY_ADMIN",
+      ].includes(complaint_rows[0].status)
     ) {
       await connection.rollback();
-      connection.release();
+
       return res.status(409).json({
         Message: "Feedback can be given only after the complaint is closed",
       });
     }
 
     const [old_feedback] = await connection.query(
-      "SELECT feedback_id FROM feedback WHERE complaint_id = ?",
+      `SELECT feedback_id
+       FROM feedback
+       WHERE complaint_id = ?`,
       [complaint_id],
     );
+
     if (old_feedback.length > 0) {
       await connection.rollback();
-      connection.release();
+
       return res.status(409).json({
         Message: "Feedback already given for this complaint",
       });
@@ -76,22 +92,28 @@ async function createFeedback(req, res) {
        FOR UPDATE`,
       ["FEEDBACK"],
     );
+
     if (rows.length === 0) {
       await connection.rollback();
-      connection.release();
+
       return res.status(500).json({
         Message: "Feedback ID sequence not found",
       });
     }
+
     const number = rows[0].next_number;
     const feedback_id = `FDB${String(number).padStart(3, "0")}`;
 
     await connection.query(
-      "UPDATE id_sequence SET next_number = next_number + 1 WHERE role = ?",
+      `UPDATE id_sequence
+       SET next_number = next_number + 1
+       WHERE role = ?`,
       ["FEEDBACK"],
     );
+
     await connection.query(
-      `INSERT INTO feedback (feedback_id, complaint_id, user_id, rating, comment)
+      `INSERT INTO feedback
+        (feedback_id, complaint_id, user_id, rating, comment)
        VALUES (?, ?, ?, ?, ?)`,
       [
         feedback_id,
@@ -103,7 +125,6 @@ async function createFeedback(req, res) {
     );
 
     await connection.commit();
-    connection.release();
 
     return res.status(201).json({
       Message: "Feedback submitted successfully",
@@ -115,27 +136,53 @@ async function createFeedback(req, res) {
       },
     });
   } catch (error) {
-    if (connection) await connection.rollback();
-    if (connection) connection.release();
+    if (connection) {
+      try {
+        await connection.rollback();
+      } catch (rollbackError) {
+        console.error(
+          "Feedback rollback error:",
+          rollbackError.message,
+        );
+      }
+    }
+
     console.error("Failed to submit feedback:", error.message);
 
     return res.status(500).json({
       Message: "Failed to submit feedback",
     });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 }
+
+/* =========================
+   GET MY FEEDBACK
+   A user can retrieve only
+   their own feedback.
+========================= */
 
 async function getMyFeedback(req, res) {
   const user_id = req.user.user_id;
   const { complaint_id } = req.params;
+
   try {
     const [rows] = await pool.query(
-      `SELECT feedback_id, complaint_id, rating, comment, created_at
+      `SELECT
+          feedback_id,
+          complaint_id,
+          rating,
+          comment,
+          created_at
        FROM feedback
        WHERE complaint_id = ?
-       AND user_id = ?`,
+         AND user_id = ?`,
       [complaint_id, user_id],
     );
+
     if (rows.length === 0) {
       return res.status(404).json({
         Message: "Feedback not found",
@@ -155,6 +202,12 @@ async function getMyFeedback(req, res) {
   }
 }
 
+/* =========================
+   GET ALL FEEDBACK
+   Admin sees submitter ID only.
+   Never return the submitter's name.
+========================= */
+
 async function getAllFeedback(req, res) {
   try {
     const [rows] = await pool.query(
@@ -166,14 +219,14 @@ async function getAllFeedback(req, res) {
           c.department_id,
           d.department_name,
           f.user_id,
-          u.name AS user_name,
           f.rating,
           f.comment,
           f.created_at
        FROM feedback f
-       JOIN complaint c ON f.complaint_id = c.complaint_id
-       JOIN department d ON c.department_id = d.department_id
-       JOIN user u ON f.user_id = u.user_id
+       JOIN complaint c
+         ON f.complaint_id = c.complaint_id
+       JOIN department d
+         ON c.department_id = d.department_id
        ORDER BY f.created_at DESC`,
     );
 
@@ -190,4 +243,8 @@ async function getAllFeedback(req, res) {
   }
 }
 
-module.exports = { createFeedback, getMyFeedback, getAllFeedback };
+module.exports = {
+  createFeedback,
+  getMyFeedback,
+  getAllFeedback,
+};

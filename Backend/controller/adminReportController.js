@@ -1,12 +1,25 @@
+
 const pool = require("../config/db");
+
+const ADMIN_QUEUE_STATUSES = [
+  "ESCALATED_TO_ADMIN",
+  "PENDING_ADMIN_REVIEW",
+  "UNDER_ADMIN_REVIEW",
+];
+
+/* =========================
+   ADMIN DASHBOARD STATISTICS
+========================= */
 
 async function getDashboardStats(req, res) {
   try {
+    // Global complaint statistics remain unchanged.
     const [status_rows] = await pool.query(
       `SELECT status, COUNT(*) AS total
        FROM complaint
        GROUP BY status`,
     );
+
     const [department_rows] = await pool.query(
       `SELECT d.department_name, COUNT(*) AS total
        FROM complaint c
@@ -14,24 +27,45 @@ async function getDashboardStats(req, res) {
        GROUP BY d.department_id, d.department_name
        ORDER BY total DESC`,
     );
+
+    // Recent complaints: return the submitter ID only.
+    // Do not join the user table to retrieve personal information.
     const [recent_rows] = await pool.query(
-      `SELECT c.complaint_id, c.subject, c.status, c.priority, c.created_at,
-              u.name AS submitted_by_name, d.department_name
+      `SELECT
+          c.complaint_id,
+          c.subject,
+          c.status,
+          c.priority,
+          c.created_at,
+          c.submitted_by,
+          d.department_name
        FROM complaint c
-       JOIN user u ON c.submitted_by = u.user_id
-       JOIN department d ON c.department_id = d.department_id
+       JOIN department d
+         ON c.department_id = d.department_id
+       WHERE c.status IN (?, ?, ?)
        ORDER BY c.created_at DESC, c.complaint_id DESC
        LIMIT 5`,
+      ADMIN_QUEUE_STATUSES,
     );
+
     const [user_rows] = await pool.query(
-      `SELECT role, COUNT(*) AS total FROM user GROUP BY role`,
+      `SELECT role, COUNT(*) AS total
+       FROM user
+       GROUP BY role`,
     );
+
     const [ha_rows] = await pool.query(
-      `SELECT COUNT(*) AS total FROM staff WHERE ha_status = 'ACTIVE'`,
+      `SELECT COUNT(*) AS total
+       FROM staff
+       WHERE ha_status = 'ACTIVE'`,
     );
+
     const [feedback_rows] = await pool.query(
-      `SELECT COUNT(*) AS total, AVG(rating) AS average FROM feedback`,
+      `SELECT COUNT(*) AS total, AVG(rating) AS average
+       FROM feedback`,
     );
+
+    const average = feedback_rows[0].average;
 
     return res.status(200).json({
       Message: "Dashboard stats fetched successfully",
@@ -42,9 +76,10 @@ async function getDashboardStats(req, res) {
       HaCount: ha_rows[0].total,
       Feedback: {
         total: feedback_rows[0].total,
-        average: feedback_rows[0].average
-          ? Number(feedback_rows[0].average).toFixed(1)
-          : null,
+        average:
+          average !== null && average !== undefined
+            ? Number(average).toFixed(1)
+            : null,
       },
     });
   } catch (error) {
@@ -56,32 +91,43 @@ async function getDashboardStats(req, res) {
   }
 }
 
+/* =========================
+   USERS
+   Return minimum necessary fields.
+   Never return names, email, phone,
+   PRN or employee number.
+========================= */
+
 async function getUsers(req, res) {
   const { role } = req.query;
+
   try {
     let query = `SELECT
           u.user_id,
-          u.name,
-          u.email,
           u.role,
-          u.phone,
           u.status,
           u.created_at,
           COALESCE(st.department_id, sf.department_id) AS department_id,
           d.department_name,
-          COALESCE(st.prn, sf.employee_no, ad.employee_no) AS reference_no,
           sf.ha_status
        FROM user u
-       LEFT JOIN student st ON u.user_id = st.student_id
-       LEFT JOIN staff sf ON u.user_id = sf.staff_id
-       LEFT JOIN admin ad ON u.user_id = ad.admin_id
+       LEFT JOIN student st
+         ON u.user_id = st.student_id
+       LEFT JOIN staff sf
+         ON u.user_id = sf.staff_id
        LEFT JOIN department d
-         ON d.department_id = COALESCE(st.department_id, sf.department_id)`;
-    let values = [];
+         ON d.department_id = COALESCE(
+           st.department_id,
+           sf.department_id
+         )`;
+
+    const values = [];
+
     if (role) {
       query += " WHERE u.role = ?";
       values.push(role);
     }
+
     query += " ORDER BY u.role, u.user_id";
 
     const [rows] = await pool.query(query, values);
@@ -99,29 +145,40 @@ async function getUsers(req, res) {
   }
 }
 
+/* =========================
+   ACTIVE HIGHER AUTHORITIES
+   Return IDs, not personal names.
+========================= */
+
 async function getActiveHAs(req, res) {
   const { department_id } = req.query;
+
   try {
     let query = `SELECT
           s.staff_id,
-          u.name,
           s.designation,
           h.department_id,
           d.department_name
        FROM ha_history h
-       JOIN staff s ON h.staff_id = s.staff_id
-       JOIN user u ON s.staff_id = u.user_id
-       JOIN department d ON h.department_id = d.department_id
+       JOIN staff s
+         ON h.staff_id = s.staff_id
+       JOIN user u
+         ON s.staff_id = u.user_id
+       JOIN department d
+         ON h.department_id = d.department_id
        WHERE h.status = 'ACTIVE'
-       AND s.ha_status = 'ACTIVE'
-       AND u.role = 'Staff'
-       AND u.status = 'ACTIVE'`;
-    let values = [];
+         AND s.ha_status = 'ACTIVE'
+         AND u.role = 'Staff'
+         AND u.status = 'ACTIVE'`;
+
+    const values = [];
+
     if (department_id) {
       query += " AND h.department_id = ?";
       values.push(department_id);
     }
-    query += " ORDER BY u.name";
+
+    query += " ORDER BY s.staff_id";
 
     const [rows] = await pool.query(query, values);
 
@@ -138,4 +195,8 @@ async function getActiveHAs(req, res) {
   }
 }
 
-module.exports = { getDashboardStats, getUsers, getActiveHAs };
+module.exports = {
+  getDashboardStats,
+  getUsers,
+  getActiveHAs,
+};
