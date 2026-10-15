@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#B9E6D3" />
+    <title>My Complaints - CMS</title>
+    <link rel="stylesheet" href="../../css/Staff/staff-common.css" />
+    <link rel="stylesheet" href="../../css/Staff/staff.css" />
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar" aria-label="Staff navigation">
+        <a class="sidebar-brand" href="dashboard.html" aria-label="CMS Dashboard">
+          <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4l18 10v20L24 44 6 34V14z" fill="#B9E6D3" stroke="#171C19" stroke-width="3" stroke-linejoin="round"/><path d="M6 14l18 10 18-10M24 24v20" fill="none" stroke="#171C19" stroke-width="3" stroke-linejoin="round"/></svg>
+          <span class="brand-text"><strong>CMS</strong><small>Complaint<br>Management System</small></span>
+        </a>
+
+        <nav class="sidebar-nav" aria-label="Main">
+          <a href="dashboard.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span class="nav-text">Dashboard</span></a>
+          <a href="my-complaints.html" class="nav-link active" aria-current="page"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span class="nav-text">My Complaints</span></a>
+          <a href="submit-complaint.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span class="nav-text">Submit Complaint</span></a>
+          <a href="ha-complaints.html" class="nav-link" id="haNavLink" hidden><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span class="nav-text">HA Complaints</span></a>
+        </nav>
+
+        <div class="sidebar-divider" role="presentation"></div>
+
+        <nav class="sidebar-nav sidebar-secondary" aria-label="Secondary">
+          <a href="notifications.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg><span class="nav-text">Notifications</span><span class="nav-badge" id="notifBadge" hidden></span></a>
+          <a href="profile.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nav-text">Profile</span></a>
+          <button class="nav-link" id="adminNavLink" data-icon="admin-panel" type="button" hidden><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/></svg><span class="nav-text">Admin Panel</span></button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="sidebar-profile">
+            <a class="sp-avatar" id="sidebarAvatar" href="profile.html" aria-label="My profile"></a>
+            <a class="sp-text" id="sidebarUser" href="profile.html"></a>
+            <button class="sp-logout" id="logoutButton" type="button" aria-label="Log out" title="Log out">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+            </button>
+          </div>
+        </div>
+      </aside>
+      <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+      <div class="app-body">
+        <header class="topbar">
+          <button class="icon-btn" id="menuToggle" type="button" aria-label="Toggle navigation" aria-controls="sidebar">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          </button>
+
+          <form class="topbar-search" id="topSearch" role="search">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input type="search" id="topSearchInput" placeholder="Search complaints..." aria-label="Search complaints" autocomplete="off" />
+            <kbd class="kbd-hint" aria-hidden="true">Ctrl + K</kbd>
+          </form>
+
+          <div class="topbar-right">
+            <a class="bell" href="notifications.html" aria-label="Notifications">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+              <span class="bell-badge" id="bellBadge" hidden></span>
+            </a>
+            <div class="admin-area"><span id="userName"></span></div>
+          </div>
+        </header>
+
+        <main class="main-content">
+          <section class="page-head">
+            <div>
+              <h2>My Complaints</h2>
+              <p>Track every complaint you have submitted.</p>
+            </div>
+            <a class="btn btn-primary" href="submit-complaint.html"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 8v8M8 12h8" /></svg> Submit New Complaint</a>
+          </section>
+
+          <div class="card table-card">
+            <div class="tabs" id="statusTabs">
+              <button class="tab active" type="button" data-group="ALL">All <span class="count">0</span></button>
+              <button class="tab" type="button" data-group="Pending">Pending <span class="count">0</span></button>
+              <button class="tab" type="button" data-group="Resolved">Resolved <span class="count">0</span></button>
+              <button class="tab" type="button" data-group="Rejected">Rejected <span class="count">0</span></button>
+            </div>
+            <div class="toolbar">
+              <div class="form-group">
+                <label for="complaintSearch">Search</label>
+                <input type="search" id="complaintSearch" placeholder="Complaint ID, subject or category" />
+              </div>
+              <div class="form-group">
+                <label for="typeFilter">Type</label>
+                <select id="typeFilter">
+                  <option value="ALL">All Types</option>
+                  <option value="NORMAL">Normal</option>
+                  <option value="EXAMINATION">Examination</option>
+                </select>
+              </div>
+            </div>
+            <p class="result-count" id="resultCount"></p>
+            <div id="complaintTable"><div class="empty">Loading...</div></div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="../../JS/Staff/staff-common.js"></script>
+    <script src="../../JS/Staff/my-complaints.js"></script>
+  </body>
+</html>

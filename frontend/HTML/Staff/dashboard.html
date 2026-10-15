@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#B9E6D3" />
+    <title>Staff Dashboard - CMS</title>
+    <link rel="stylesheet" href="../../css/Staff/staff-common.css" />
+    <link rel="stylesheet" href="../../css/Staff/staff.css" />
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar" aria-label="Staff navigation">
+        <a class="sidebar-brand" href="dashboard.html" aria-label="CMS Dashboard">
+          <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4l18 10v20L24 44 6 34V14z" fill="#B9E6D3" stroke="#171C19" stroke-width="3" stroke-linejoin="round"/><path d="M6 14l18 10 18-10M24 24v20" fill="none" stroke="#171C19" stroke-width="3" stroke-linejoin="round"/></svg>
+          <span class="brand-text"><strong>CMS</strong><small>Complaint<br>Management System</small></span>
+        </a>
+
+        <nav class="sidebar-nav" aria-label="Main">
+          <a href="dashboard.html" class="nav-link active" aria-current="page"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span class="nav-text">Dashboard</span></a>
+          <a href="my-complaints.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span class="nav-text">My Complaints</span></a>
+          <a href="submit-complaint.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span class="nav-text">Submit Complaint</span></a>
+          <a href="ha-complaints.html" class="nav-link" id="haNavLink" hidden><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span class="nav-text">HA Complaints</span></a>
+        </nav>
+
+        <div class="sidebar-divider" role="presentation"></div>
+
+        <nav class="sidebar-nav sidebar-secondary" aria-label="Secondary">
+          <a href="notifications.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg><span class="nav-text">Notifications</span><span class="nav-badge" id="notifBadge" hidden></span></a>
+          <a href="profile.html" class="nav-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nav-text">Profile</span></a>
+          <button class="nav-link" id="adminNavLink" data-icon="admin-panel" type="button" hidden><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/></svg><span class="nav-text">Admin Panel</span></button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="sidebar-profile">
+            <a class="sp-avatar" id="sidebarAvatar" href="profile.html" aria-label="My profile"></a>
+            <a class="sp-text" id="sidebarUser" href="profile.html"></a>
+            <button class="sp-logout" id="logoutButton" type="button" aria-label="Log out" title="Log out">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+            </button>
+          </div>
+        </div>
+      </aside>
+      <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+      <div class="app-body">
+        <header class="topbar">
+          <button class="icon-btn" id="menuToggle" type="button" aria-label="Toggle navigation" aria-controls="sidebar">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          </button>
+
+          <form class="topbar-search" id="topSearch" role="search">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input type="search" id="topSearchInput" placeholder="Search complaints..." aria-label="Search complaints" autocomplete="off" />
+            <kbd class="kbd-hint" aria-hidden="true">Ctrl + K</kbd>
+          </form>
+
+          <div class="topbar-right">
+            <a class="bell" href="notifications.html" aria-label="Notifications">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+              <span class="bell-badge" id="bellBadge" hidden></span>
+            </a>
+            <div class="admin-area"><span id="userName"></span></div>
+          </div>
+        </header>
+
+        <main class="main-content">
+          <section class="welcome-banner">
+            <div class="welcome-text">
+              <p class="eyebrow">Welcome Back,</p>
+              <h2><span id="welcomeName">Student</span> <span aria-hidden="true">&#128075;</span></h2>
+              <p>Here's an overview of your complaints and their status.</p>
+            </div>
+            <div class="welcome-art" aria-hidden="true">
+              <svg viewBox="0 0 190 120" fill="none">
+                <circle cx="95" cy="62" r="52" fill="#DDF2E8" />
+                <circle cx="40" cy="78" r="26" fill="#B9E6D3" />
+                <rect x="66" y="22" width="62" height="78" rx="8" fill="#FFFDF8" stroke="#171C19" stroke-width="3" />
+                <path d="M78 42h38M78 54h38M78 66h24" stroke="#171C19" stroke-width="3" stroke-linecap="round" />
+                <circle cx="70" cy="86" r="17" fill="#8FD7B5" stroke="#171C19" stroke-width="3" />
+                <path d="M62 86l6 6 11-12" stroke="#171C19" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M138 24l8-8M146 38l12-3M132 12l2-9" stroke="#8FD7B5" stroke-width="4" stroke-linecap="round" />
+              </svg>
+            </div>
+            <a class="btn btn-primary btn-lg" href="submit-complaint.html"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 8v8M8 12h8" /></svg> Submit New Complaint</a>
+          </section>
+
+          <div class="ha-strip" id="haStrip" hidden>
+            <div>
+              <strong>Higher Authority Queue</strong>
+              <p>Complaints of your department that need your action.</p>
+            </div>
+            <div class="ha-counts">
+              <div><span id="haAwaiting">0</span>Awaiting Review</div>
+              <div><span id="haReviewing">0</span>Under Review</div>
+            </div>
+            <a class="btn btn-primary" href="ha-complaints.html">Open Queue</a>
+          </div>
+
+          <section class="dashboard-summary">
+            <div class="summary-card stat-card">
+              <div class="stat-icon yellow"><svg class="icon" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5M9 13h6M9 17h6" /></svg></div>
+              <div><h3>Total Complaints</h3><p id="totalComplaints">--</p></div>
+            </div>
+            <div class="summary-card stat-card">
+              <div class="stat-icon blue"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg></div>
+              <div><h3>Pending</h3><p id="pendingComplaints">--</p></div>
+            </div>
+            <div class="summary-card stat-card">
+              <div class="stat-icon green"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M8 12.5l3 3 5-6" /></svg></div>
+              <div><h3>Resolved</h3><p id="resolvedComplaints">--</p></div>
+            </div>
+            <div class="summary-card stat-card">
+              <div class="stat-icon red"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v6M12 16.5v.5" /></svg></div>
+              <div><h3>Rejected</h3><p id="rejectedComplaints">--</p></div>
+            </div>
+          </section>
+
+          <section class="dashboard-grid">
+            <div class="recent-complaints">
+              <div class="card-title">
+                <h3><svg class="icon" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5M9 13h6M9 17h6" /></svg> Recent Complaints</h3>
+                <a class="view-all" href="my-complaints.html">View All &rarr;</a>
+              </div>
+              <div id="recentComplaints"><div class="empty">Loading...</div></div>
+            </div>
+
+            <div class="side-column">
+              <div class="card" style="margin-bottom:0">
+                <div class="card-title"><h3><svg class="icon" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1" /><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" /></svg> Complaint Status Overview</h3></div>
+                <div class="donut-wrap">
+                  <div class="donut" id="statusDonut">
+                    <div class="donut-center"><strong id="donutTotal">0</strong><span>Total</span></div>
+                  </div>
+                  <ul class="legend" id="donutLegend"></ul>
+                </div>
+              </div>
+
+              <div class="card" style="margin-bottom:0">
+                <div class="card-title"><h3><svg class="icon" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1" /><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" /></svg> Quick Links</h3></div>
+                <div class="quick-links">
+                  <a class="quick-link" href="submit-complaint.html"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 8v8M8 12h8" /></svg> Submit New Complaint <span class="go">&rsaquo;</span></a>
+                  <a class="quick-link" href="my-complaints.html"><svg class="icon" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5M9 13h6M9 17h6" /></svg> View My Complaints <span class="go">&rsaquo;</span></a>
+                </div>
+              </div>
+            </div>
+          </section>
+        
+        </main>
+      </div>
+    </div>
+
+    <script src="../../JS/Staff/staff-common.js"></script>
+    <script src="../../JS/Staff/dashboard.js"></script>
+  </body>
+</html>
